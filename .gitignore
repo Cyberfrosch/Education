@@ -396,3 +396,6 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+
+# Starfield (other repository https://github.com/Cyberfrosch/Starfield)
+Lesson1/
