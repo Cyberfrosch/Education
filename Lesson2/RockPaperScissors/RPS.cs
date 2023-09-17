@@ -18,7 +18,7 @@ namespace RockPaperScissors
 
         public int gameCount;
 
-        private static readonly string _imagePath = "D:\\\\Projects\\\\Visual Studio\\\\Education\\\\Lesson2\\\\RockPaperScissors\\\\Resources";
+        private static readonly string _imagePath = GetParentDirectory(Environment.CurrentDirectory, 3) + "\\Resources";
         private static readonly string[] _imageFiles = Directory.GetFiles(_imagePath, "*.ico");
 
         public RPS()
@@ -168,6 +168,23 @@ namespace RockPaperScissors
             LbGameNumber.Text = $"Game: {gameCount}";
 
             BtPlay.Enabled = false;
+        }
+
+        public static string GetParentDirectory(string path, int levels)
+        {
+            string? parent;
+
+            for (int i = 0; i < levels; ++i)
+            {
+                parent = Path.GetDirectoryName(path);
+
+                if (parent == null)
+                    break;
+
+                path = parent;
+            }
+
+            return path;
         }
     }
 
