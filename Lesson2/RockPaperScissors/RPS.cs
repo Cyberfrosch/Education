@@ -42,11 +42,7 @@ namespace RockPaperScissors
             BtScissors.Text = figureList[2].ToString();
             BtScissors.Image = figureList[2].FigureImage;
 
-            userFigure = null;
-            compFigure = null;
-
-            userScore = 0;
-            compScore = 0;
+            ResetScore();
         }
 
         private void BtRock_Click(object sender, EventArgs e)
@@ -84,6 +80,9 @@ namespace RockPaperScissors
 
         private async void BtPlay_Click(object sender, EventArgs e)
         {
+            LbUserFigure.Text = string.Empty;
+            LbCompFigure.Text = string.Empty;
+
             PnGameMenu.Enabled = false;
             PnGameField.Enabled = true;
 
@@ -91,30 +90,25 @@ namespace RockPaperScissors
 
             compFigure = figureList[random.Next(figureList.Count)];
 
-            //"Loading" game
+            // "Loading" game
             await Task.Run(() =>
             {
                 for (int i = 0; i < 20; ++i)
                 {
                     Invoke(new Action(() =>
                     {
-                        if (i != 19)
-                        {
-                            PbUserFigure.Image = ImLsFigure.Images[random.Next(ImLsFigure.Images.Count)];
-                            PbCompFigure.Image = ImLsFigure.Images[random.Next(ImLsFigure.Images.Count)];
-                        }
-                        else
-                        {
-                            LbUserFigure.Text = userFigure.ToString();
-                            PbUserFigure.Image = userFigure.FigureImage;
-
-                            LbCompFigure.Text = compFigure.ToString();
-                            PbCompFigure.Image = compFigure.FigureImage;
-                        }
+                        PbUserFigure.Image = ImLsFigure.Images[random.Next(ImLsFigure.Images.Count)];
+                        PbCompFigure.Image = ImLsFigure.Images[random.Next(ImLsFigure.Images.Count)];
                     }));
-                    Thread.Sleep(100);
+                    Thread.Sleep(150);
                 }
             });
+
+            LbUserFigure.Text = userFigure.ToString();
+            PbUserFigure.Image = userFigure.FigureImage;
+
+            LbCompFigure.Text = compFigure.ToString();
+            PbCompFigure.Image = compFigure.FigureImage;
 
             if (userFigure > compFigure)
             {
@@ -133,10 +127,7 @@ namespace RockPaperScissors
 
             gameCount++;
 
-            LbUserScore.Text = $"Your score: {userScore}";
-            LbCompScore.Text = $"Comp score: {compScore}";
-
-            LbGameNumber.Text = $"Game: {gameCount}";
+            SetScore();
 
             PnGameField.Enabled = false;
             PnGameMenu.Enabled = true;
@@ -154,6 +145,21 @@ namespace RockPaperScissors
             LbCompFigure.Text = string.Empty;
             PbCompFigure.Image = null;
 
+            ResetScore();
+
+            BtPlay.Enabled = false;
+        }
+
+        public void SetScore()
+        {
+            LbUserScore.Text = $"Your score: {userScore}";
+            LbCompScore.Text = $"Comp score: {compScore}";
+
+            LbGameNumber.Text = $"Game: {gameCount}";
+        }
+
+        public void ResetScore()
+        {
             userFigure = null;
             userScore = 0;
 
@@ -162,12 +168,7 @@ namespace RockPaperScissors
 
             gameCount = 0;
 
-            LbUserScore.Text = $"Your score: {userScore}";
-            LbCompScore.Text = $"Comp score: {compScore}";
-
-            LbGameNumber.Text = $"Game: {gameCount}";
-
-            BtPlay.Enabled = false;
+            SetScore();
         }
 
         public static string GetParentDirectory(string path, int levels)
