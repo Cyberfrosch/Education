@@ -1,5 +1,6 @@
 using Microsoft.VisualBasic.Devices;
 using RockPaperScissors.Properties;
+using System;
 using System.Windows.Forms;
 using static RockPaperScissors.RPS;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.TrackBar;
@@ -90,19 +91,7 @@ namespace RockPaperScissors
 
             compFigure = figureList[random.Next(figureList.Count)];
 
-            // "Loading" game
-            await Task.Run(() =>
-            {
-                for (int i = 0; i < 20; ++i)
-                {
-                    Invoke(new Action(() =>
-                    {
-                        PbUserFigure.Image = ImLsFigure.Images[random.Next(ImLsFigure.Images.Count)];
-                        PbCompFigure.Image = ImLsFigure.Images[random.Next(ImLsFigure.Images.Count)];
-                    }));
-                    Thread.Sleep(150);
-                }
-            });
+            await LoadingGameField(20, 150);
 
             LbUserFigure.Text = userFigure.ToString();
             PbUserFigure.Image = userFigure.FigureImage;
@@ -169,6 +158,22 @@ namespace RockPaperScissors
             gameCount = 0;
 
             SetScore();
+        }
+
+        private async Task LoadingGameField(int numIteration, int delay)
+        {
+            Random random = new Random();
+
+            for (int i = 0; i < numIteration; ++i)
+            {
+                Invoke(new Action(() =>
+                {
+                    PbUserFigure.Image = ImLsFigure.Images[random.Next(ImLsFigure.Images.Count)];
+                    PbCompFigure.Image = ImLsFigure.Images[random.Next(ImLsFigure.Images.Count)];
+                }));
+
+                await Task.Delay(delay);
+            }
         }
 
         public static string GetParentDirectory(string path, int levels)
