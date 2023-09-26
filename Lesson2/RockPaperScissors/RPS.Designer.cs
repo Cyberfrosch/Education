@@ -70,6 +70,7 @@
             BtRock.Name = "BtRock";
             BtRock.Size = new Size(112, 45);
             BtRock.TabIndex = 0;
+            BtRock.Tag = "0";
             BtRock.Text = "Rock";
             BtRock.TextAlign = ContentAlignment.MiddleRight;
             BtRock.UseVisualStyleBackColor = true;
@@ -82,6 +83,7 @@
             BtPaper.Name = "BtPaper";
             BtPaper.Size = new Size(112, 45);
             BtPaper.TabIndex = 1;
+            BtPaper.Tag = "1";
             BtPaper.Text = "Paper";
             BtPaper.TextAlign = ContentAlignment.MiddleRight;
             BtPaper.UseVisualStyleBackColor = true;
@@ -94,6 +96,7 @@
             BtScissors.Name = "BtScissors";
             BtScissors.Size = new Size(112, 45);
             BtScissors.TabIndex = 2;
+            BtScissors.Tag = "2";
             BtScissors.Text = "Scissors";
             BtScissors.TextAlign = ContentAlignment.MiddleRight;
             BtScissors.UseVisualStyleBackColor = true;
@@ -144,8 +147,11 @@
             // ImLsFigure
             // 
             ImLsFigure.ColorDepth = ColorDepth.Depth8Bit;
-            ImLsFigure.ImageSize = new Size(16, 16);
+            ImLsFigure.ImageStream = (ImageListStreamer)resources.GetObject("ImLsFigure.ImageStream");
             ImLsFigure.TransparentColor = Color.Transparent;
+            ImLsFigure.Images.SetKeyName(0, "stone-sphere_38060.png");
+            ImLsFigure.Images.SetKeyName(1, "receipt-paper_icon-icons.com_56152.png");
+            ImLsFigure.Images.SetKeyName(2, "fullcut_cut_scissors_4720.png");
             // 
             // PnGameCounter
             // 

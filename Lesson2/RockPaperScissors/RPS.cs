@@ -19,64 +19,38 @@ namespace RockPaperScissors
 
         public int gameCount;
 
-        private static readonly string _imagePath = GetParentDirectory(Environment.CurrentDirectory, 3) + "\\Resources";
-        private static readonly string[] _imageFiles = Directory.GetFiles(_imagePath, "*.ico");
-
         public RPS()
         {
             InitializeComponent();
 
             // Set default values
-            foreach (var image in _imageFiles)
-            {
-                ImLsFigure.Images.Add(Image.FromFile(image));
-            }
-
             figureList = new Figure.FigureList(ImLsFigure);
 
             BtRock.Text = figureList[0].ToString();
-            BtRock.Image = figureList[0].FigureImage;
+            BtRock.Image = new Bitmap(figureList[0].FigureImage, new Size(32, 32));
 
             BtPaper.Text = figureList[1].ToString();
-            BtPaper.Image = figureList[1].FigureImage;
+            BtPaper.Image = new Bitmap(figureList[1].FigureImage, new Size(32, 32));
 
             BtScissors.Text = figureList[2].ToString();
-            BtScissors.Image = figureList[2].FigureImage;
+            BtScissors.Image = new Bitmap(figureList[2].FigureImage, new Size(32, 32));
 
             ResetScore();
         }
 
         private void BtRock_Click(object sender, EventArgs e)
         {
-            userFigure = figureList[0];
-
-            BtPlay.Enabled = true;
-            BtRock.FlatStyle = FlatStyle.Flat;
-
-            BtPaper.FlatStyle = FlatStyle.Standard;
-            BtScissors.FlatStyle = FlatStyle.Standard;
+            SelectFigure(BtRock);
         }
 
         private void BtPaper_Click(object sender, EventArgs e)
         {
-            userFigure = figureList[1];
-
-            BtPlay.Enabled = true;
-            BtPaper.FlatStyle = FlatStyle.Flat;
-
-            BtRock.FlatStyle = FlatStyle.Standard;
-            BtScissors.FlatStyle = FlatStyle.Standard;
+            SelectFigure(BtPaper);
         }
 
         private void BtScissors_Click(object sender, EventArgs e)
         {
-            userFigure = figureList[2];
-
-            BtPlay.Enabled = true;
-            BtScissors.FlatStyle = FlatStyle.Flat;
-
-            BtRock.FlatStyle = FlatStyle.Standard;
-            BtPaper.FlatStyle = FlatStyle.Standard;
+            SelectFigure(BtScissors);
         }
 
         private async void BtPlay_Click(object sender, EventArgs e)
@@ -160,6 +134,36 @@ namespace RockPaperScissors
             SetScore();
         }
 
+        private void SelectFigure(Button button)
+        {
+            if (button == BtRock)
+            {
+                BtPaper.FlatStyle = FlatStyle.Standard;
+                BtScissors.FlatStyle = FlatStyle.Standard;
+            }
+            else if (button == BtPaper)
+            {
+                BtRock.FlatStyle = FlatStyle.Standard;
+                BtScissors.FlatStyle = FlatStyle.Standard;
+            }
+            else if (button == BtScissors)
+            {
+                BtRock.FlatStyle = FlatStyle.Standard;
+                BtPaper.FlatStyle = FlatStyle.Standard;
+            }
+            else
+            {
+                return;
+            }
+
+            button.FlatStyle = FlatStyle.Flat;
+
+            int index = Convert.ToInt32(button.Tag);
+            userFigure = figureList[index];
+
+            BtPlay.Enabled = true;
+        }
+
         private async Task LoadingGameField(int numIteration, int delay)
         {
             Random random = new Random();
@@ -174,23 +178,6 @@ namespace RockPaperScissors
 
                 await Task.Delay(delay);
             }
-        }
-
-        public static string GetParentDirectory(string path, int levels)
-        {
-            string? parent;
-
-            for (int i = 0; i < levels; ++i)
-            {
-                parent = Path.GetDirectoryName(path);
-
-                if (parent == null)
-                    break;
-
-                path = parent;
-            }
-
-            return path;
         }
     }
 
