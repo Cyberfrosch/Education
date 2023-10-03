@@ -24,7 +24,6 @@ namespace Genotype
             // Можно использовать "return (T)random.Next(range);", но это менее безопасный способ приведения типов
             return (T)Enum.ToObject(typeof(T), random.Next(range));
         }
-
     }
 
     public static class Extensions

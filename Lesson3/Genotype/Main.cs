@@ -13,6 +13,9 @@ namespace Genotype
         public Animal father;
         public Animal mother;
 
+        const int sexSize = 2;
+
+        List<Animal> offspring;
         public int OffspringNumber { get; set; }
 
         public Main()
@@ -20,42 +23,83 @@ namespace Genotype
             InitializeComponent();
 
             // Default params of parents
-            father = new Animal("Balu", Sexes.Male);
             mother = new Animal("Bagira", Sexes.Female);
+            father = new Animal("Balu", Sexes.Male);
             OffspringNumber = 50;
-
-            settings = new Settings(this);
-            settings.SettingsChanged += SettingsForm_SettingsChanged;
 
             SetLabelValues();
         }
 
-        private List<Animal> GenerateOffspring(//mother //father )
-            )
+        private void SettingsForm_SettingsChanged(object sender, EventArgs e)
         {
-            List<Animal> offspring = new List<Animal>();
+            SetLabelValues();
+        }
 
-            Random random = new();
-            const int SexSize = 2;
+        private void BtGenerate_Click(object sender, EventArgs e)
+        {
+            GenerateOffspring(mother, father);
+
+            pictureBox1.Image = null;
+            DrawOffspring();
+        }
+
+        private void BtSettings_Click(object sender, EventArgs e)
+        {
+            if (settings == null || settings.IsDisposed)
+            {
+                settings = new Settings(this);
+                settings.SettingsChanged += SettingsForm_SettingsChanged;
+            }
+
+            settings.Show();
+        }
+
+        private List<Animal> GenerateOffspring(Animal mother, Animal father)
+        {
+            offspring = new List<Animal>();
 
             for (int i = 1; i <= OffspringNumber; ++i)
             {
-                Animal animal = new("Pepe", Utils.EnumGetRandomValue<Sexes>(SexSize));
-                offspring.Add(animal);
+                Gene childGen = mother.Genotype + father.Genotype;
+                Animal child = new(childGen.name, Utils.EnumGetRandomValue<Sexes>(sexSize), childGen.allele1, childGen.allele2);
+                offspring.Add(child);
             }
 
             return offspring;
         }
 
-        private void DrawOffspring(Graphics g)
+        private void DrawOffspring()
         {
+            pictureBox1.Controls.Clear();
 
+            int x = 20;
+            int y = 20;
+
+            foreach (Animal child in offspring)
+            {
+                child.EssensePhenotype.Draw(pictureBox1.CreateGraphics(), new Point(x, y), 30);
+
+                Label nameLabel = new();
+                nameLabel.Text = child.Name;
+                nameLabel.Location = new Point(x, y + 35);
+                nameLabel.AutoSize = true;
+
+                pictureBox1.Controls.Add(nameLabel);
+
+                // Обновляем координаты для следующего потомка
+                x += 60;
+                if (x > pictureBox1.Width - 40)
+                {
+                    x = 20;
+                    y += 70;
+                }
+            }
         }
 
-        private void BtSettings_Click(object sender, EventArgs e)
-        {
-            settings.Show();
-        }
+        //private Color GetColorForGenotype(Gene genotype)
+        //{
+        //    return genotype.Dominant ? Color.Red : Color.Blue;
+        //}
 
         private void SetLabelValues()
         {
@@ -69,21 +113,9 @@ namespace Genotype
             LbFatherGen.Text += $"A1: {father.Genotype.ToString(father.Genotype.allele1)}; ";
             LbFatherGen.Text += $"A2: {father.Genotype.ToString(father.Genotype.allele2)}";
         }
-
-        private void SettingsForm_SettingsChanged(object sender, EventArgs e)
-        {
-            SetLabelValues();
-        }
-
-        private void button1_Click(object sender, EventArgs e)
-        {
-            GenerateOffspring();
-
-            DrawOffspring();
-        }
     }
 
-    public class Gen
+    public class Gene
     {
         // enum Allele можно заменить на bool, но стоит ли? менее гибко и читаемо
         public Allele allele1;
@@ -92,18 +124,18 @@ namespace Genotype
         // в C# оказывается нет макросов и глобальных переменных (всё внутри класса), т.ч. ничего лучше не придумал:
         public static readonly int alleleSize = Utils.EnumGetSize<Allele>();
 
-        private string _name;
+        public string name;
 
-        bool Dominant
+        public bool Dominant
         {
             get { return allele1 == Allele.Dominant || allele2 == Allele.Dominant; }
         }
 
-        public Gen(Allele allele1, Allele allele2, string name)
+        public Gene(Allele allele1, Allele allele2, string name)
         {
             this.allele1 = allele1;
             this.allele2 = allele2;
-            _name = name;
+            this.name = name;
         }
 
         public string ToString(Allele allele)
@@ -111,15 +143,15 @@ namespace Genotype
             return allele == Allele.Dominant ? "Dominant" : "Recessive";
         }
 
-        public static Gen operator +(Gen gen1, Gen gen2)
+        public static Gene operator +(Gene gen1, Gene gen2)
         {
             Random random = new();
             Thread.Sleep(1);
 
-            Allele allele1 = random.Next(2) == 0 ? gen1.allele1 : gen2.allele1;
-            Allele allele2 = random.Next(2) == 0 ? gen1.allele2 : gen2.allele2;
+            Allele allele1 = random.Next(alleleSize) == 0 ? gen1.allele1 : gen2.allele1;
+            Allele allele2 = random.Next(alleleSize) == 0 ? gen1.allele2 : gen2.allele2;
 
-            return new Gen(allele1, allele2, gen1._name);
+            return new Gene(allele1, allele2, "Pepe");
         }
     }
 
@@ -195,7 +227,7 @@ namespace Genotype
 
         public Essense(string name, Sexes sex)
         {
-            _name = name;
+            Name = name;
             Sex = sex;
             EssensePhenotype = new Phenotype((Sex == Sexes.Male) ? Shapes.Triangle : Shapes.Circle);
         }
@@ -203,7 +235,7 @@ namespace Genotype
 
     public class Animal : Essense
     {
-        public Gen Genotype { get; set; }
+        public Gene Genotype { get; set; }
 
         // Случайная генерация аллелей
         public Animal(string name, Sexes sex) : base(name, sex)
@@ -211,21 +243,21 @@ namespace Genotype
             Random random = new();
 
             // Здесь приводится случайное int значение из диапазона размера enum'a к соответствующему элементу в виде индекса
-            Allele allele1 = Utils.EnumGetRandomValue<Allele>(Gen.alleleSize);
-            Allele allele2 = Utils.EnumGetRandomValue<Allele>(Gen.alleleSize);
+            Allele allele1 = Utils.EnumGetRandomValue<Allele>(Gene.alleleSize);
+            Allele allele2 = Utils.EnumGetRandomValue<Allele>(Gene.alleleSize);
 
-            Genotype = new Gen(allele1, allele2, name);
+            Genotype = new Gene(allele1, allele2, name);
         }
 
         public Animal(string name, Sexes sex, Allele allele1) : base(name, sex)
         {
-            Genotype = new Gen(allele1, allele1, name);
+            Genotype = new Gene(allele1, allele1, name);
         }
 
         // Основной конструктор, остальные сделал для большей гибкости
         public Animal(string name, Sexes sex, Allele allele1, Allele allele2) : base(name, sex)
         {
-            Genotype = new Gen(allele1, allele2, name);
+            Genotype = new Gene(allele1, allele2, name);
         }
     }
 }
