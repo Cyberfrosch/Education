@@ -1,4 +1,4 @@
-namespace RockPaperScissors
+namespace Genotype
 {
     internal static class Program
     {
@@ -11,7 +11,7 @@ namespace RockPaperScissors
             // To customize application configuration such as set high DPI settings or default font,
             // see https://aka.ms/applicationconfiguration.
             ApplicationConfiguration.Initialize();
-            Application.Run(new RPS());
+            Application.Run(new Main());
         }
     }
 }
