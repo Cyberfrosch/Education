@@ -10,8 +10,6 @@ using System.Windows.Forms;
 
 namespace Genotype
 {
-    // Лучше не делать меню настроек на отдельной форме - это то еще мозгоебство...
-    // + RadioButton'ы в данном случае тоже говна наворотили
     public partial class Settings : Form
     {
         public Main _main;
@@ -62,7 +60,6 @@ namespace Genotype
             {
                 // Чтобы не писать 8 блоков условия (а только 4), использовал костыль в виде определения части имени кнопки,
                 // чтобы знать к какому аллелю (1 или 2) она относится
-                // Выглядит как хуйня, знаю...
                 if (radioButton.Name.StartsWith("RdBtMotherAllele1"))
                 {
                     _main.mother.Genotype.allele1 = allele;

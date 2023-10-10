@@ -10,12 +10,11 @@ namespace Genotype
     {
         private Settings settings;
 
-        public Animal father;
-        public Animal mother;
+        public EssenseAttribute1 father;
+        public EssenseAttribute1 mother;
 
-        const int sexSize = 2;
+        List<EssenseAttribute1> offspring;
 
-        List<Animal> offspring;
         public int OffspringNumber { get; set; }
 
         public Main()
@@ -23,8 +22,8 @@ namespace Genotype
             InitializeComponent();
 
             // Default params of parents
-            mother = new Animal("Bagira", Sexes.Female);
-            father = new Animal("Balu", Sexes.Male);
+            mother = new EssenseAttribute1("Bagira", Sexes.Female);
+            father = new EssenseAttribute1("Balu", Sexes.Male);
             OffspringNumber = 50;
 
             SetLabelValues();
@@ -37,10 +36,14 @@ namespace Genotype
 
         private void BtGenerate_Click(object sender, EventArgs e)
         {
-            GenerateOffspring(mother, father);
+            offspring = father.Breed(mother, OffspringNumber);
 
-            pictureBox1.Image = null;
-            DrawOffspring();
+            foreach (var child in offspring)
+            {
+                child.Draw(pictureBox1, new Point(4, 4), 48);
+            }
+
+            //father.Draw(pictureBox1, new Point(4, 4), 48);
         }
 
         private void BtSettings_Click(object sender, EventArgs e)
@@ -53,53 +56,6 @@ namespace Genotype
 
             settings.Show();
         }
-
-        private List<Animal> GenerateOffspring(Animal mother, Animal father)
-        {
-            offspring = new List<Animal>();
-
-            for (int i = 1; i <= OffspringNumber; ++i)
-            {
-                Gene childGen = mother.Genotype + father.Genotype;
-                Animal child = new(childGen.name, Utils.EnumGetRandomValue<Sexes>(sexSize), childGen.allele1, childGen.allele2);
-                offspring.Add(child);
-            }
-
-            return offspring;
-        }
-
-        private void DrawOffspring()
-        {
-            pictureBox1.Controls.Clear();
-
-            int x = 20;
-            int y = 20;
-
-            foreach (Animal child in offspring)
-            {
-                child.EssensePhenotype.Draw(pictureBox1.CreateGraphics(), new Point(x, y), 30);
-
-                Label nameLabel = new();
-                nameLabel.Text = child.Name;
-                nameLabel.Location = new Point(x, y + 35);
-                nameLabel.AutoSize = true;
-
-                pictureBox1.Controls.Add(nameLabel);
-
-                // Обновляем координаты для следующего потомка
-                x += 60;
-                if (x > pictureBox1.Width - 40)
-                {
-                    x = 20;
-                    y += 70;
-                }
-            }
-        }
-
-        //private Color GetColorForGenotype(Gene genotype)
-        //{
-        //    return genotype.Dominant ? Color.Red : Color.Blue;
-        //}
 
         private void SetLabelValues()
         {
@@ -211,11 +167,11 @@ namespace Genotype
         }
     }
 
-    public abstract class Essense
+    public abstract class Essence
     {
         private string _name;
 
-        public static int SexSize = 2;
+        public static int sexSize = 2;
 
         public string Name
         {
@@ -225,39 +181,88 @@ namespace Genotype
         public Sexes Sex { get; set; }
         public Phenotype EssensePhenotype { get; set; }
 
-        public Essense(string name, Sexes sex)
+        public Essence(string name, Sexes sex)
         {
             Name = name;
             Sex = sex;
             EssensePhenotype = new Phenotype((Sex == Sexes.Male) ? Shapes.Triangle : Shapes.Circle);
         }
+
+        protected virtual Essence Child(Essence partner, string name, Sexes sex)
+        {
+            return null;
+        }
+
+        public List<Essence> Breed(Essence partner, int count)
+        {
+            List<Essence> children = new List<Essence>();
+
+            for (int i = 1; i <= count; ++i)
+            {
+                Essence child = Child(partner, "Child" + i.ToString(), Utils.EnumGetRandomValue<Sexes>(sexSize));
+                children.Add(child);
+            }
+
+            return children;
+        }
+
+        public void Draw(Control control, Point point, int size)
+        {
+            Graphics graphics = control.CreateGraphics();
+
+            EssensePhenotype.Draw(graphics, point, size);
+        }
     }
 
-    public class Animal : Essense
+    public class EssenseAttribute1 : Essence
     {
         public Gene Genotype { get; set; }
 
-        // Случайная генерация аллелей
-        public Animal(string name, Sexes sex) : base(name, sex)
+        public EssenseAttribute1(string name, Sexes sex) : base(name, sex)
         {
-            Random random = new();
+            Genotype = new(Utils.EnumGetRandomValue<Allele>(), Utils.EnumGetRandomValue<Allele>(), name);
 
-            // Здесь приводится случайное int значение из диапазона размера enum'a к соответствующему элементу в виде индекса
-            Allele allele1 = Utils.EnumGetRandomValue<Allele>(Gene.alleleSize);
-            Allele allele2 = Utils.EnumGetRandomValue<Allele>(Gene.alleleSize);
-
-            Genotype = new Gene(allele1, allele2, name);
+            EssensePhenotype.LineWidth = Genotype.Dominant ? 4 : 1;
         }
 
-        public Animal(string name, Sexes sex, Allele allele1) : base(name, sex)
+        public EssenseAttribute1(string name, Sexes sex, Gene gene1) : base(name, sex)
         {
-            Genotype = new Gene(allele1, allele1, name);
+            Genotype = gene1;
+
+            EssensePhenotype.LineWidth = Genotype.Dominant ? 4 : 1;
         }
 
-        // Основной конструктор, остальные сделал для большей гибкости
-        public Animal(string name, Sexes sex, Allele allele1, Allele allele2) : base(name, sex)
+        protected virtual Essence Child(Essence partner, string name, Sexes sex)
         {
-            Genotype = new Gene(allele1, allele2, name);
+            Gene childGen = Genotype + (partner as EssenseAttribute1).Genotype;
+            Essence child = new EssenseAttribute1(name, sex, childGen);
+
+            return child;
+        }
+    }
+
+    public static class Extensions
+    {
+        public static void FillTriangle(this Graphics graphics, Brush brush, Rectangle rectangle)
+        {
+            Point[] points = new Point[3];
+
+            points[0] = new Point(rectangle.Left, rectangle.Top);
+            points[1] = new Point(rectangle.Right, rectangle.Top);
+            points[2] = new Point(rectangle.Left + rectangle.Width / 2, rectangle.Bottom);
+
+            graphics.FillPolygon(brush, points);
+        }
+
+        public static void DrawTriangle(this Graphics graphics, Pen pen, Rectangle rectangle)
+        {
+            Point[] points = new Point[3];
+
+            points[0] = new Point(rectangle.Left, rectangle.Top);
+            points[1] = new Point(rectangle.Right, rectangle.Top);
+            points[2] = new Point(rectangle.Left + rectangle.Width / 2, rectangle.Bottom);
+
+            graphics.DrawPolygon(pen, points);
         }
     }
 }

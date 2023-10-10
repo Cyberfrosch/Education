@@ -12,42 +12,29 @@ namespace Genotype
         // Метод получения размера любого перечисления
         public static int EnumGetSize<T>() where T : Enum
         {
-            T[] values = (T[])Enum.GetValues(typeof(T));
-            return values.Length;
+            return Enum.GetValues(typeof(T)).Length;
         }
 
         // Метод получения случайного элемента перечисления из переданного диапазона
-        public static T EnumGetRandomValue<T>(int range)
+        public static T EnumGetRandomValue<T>(int range) where T : Enum
         {
             Random random = new();
 
             // Можно использовать "return (T)random.Next(range);", но это менее безопасный способ приведения типов
-            return (T)Enum.ToObject(typeof(T), random.Next(range));
-        }
-    }
-
-    public static class Extensions
-    {
-        public static void FillTriangle(this Graphics graphics, Brush brush, Rectangle rectangle)
-        {
-            Point[] points = new Point[3];
-
-            points[0] = new Point(rectangle.Left, rectangle.Top);
-            points[1] = new Point(rectangle.Right, rectangle.Top);
-            points[2] = new Point(rectangle.Left + rectangle.Width / 2, rectangle.Bottom);
-
-            graphics.FillPolygon(brush, points);
+            if (range > EnumGetSize<T>())
+            {
+                return (T)Enum.ToObject(typeof(T), EnumGetSize<T>());
+            }
+            else
+            {
+                return (T)Enum.ToObject(typeof(T), random.Next(range));
+            }
         }
 
-        public static void DrawTriangle(this Graphics graphics, Pen pen, Rectangle rectangle)
+        // Метод получения случайного элемента перечисления из диапазона размера перечисления
+        public static T EnumGetRandomValue<T>() where T : Enum
         {
-            Point[] points = new Point[3];
-
-            points[0] = new Point(rectangle.Left, rectangle.Top);
-            points[1] = new Point(rectangle.Right, rectangle.Top);
-            points[2] = new Point(rectangle.Left + rectangle.Width / 2, rectangle.Bottom);
-
-            graphics.DrawPolygon(pen, points);
+            return EnumGetRandomValue<T>(EnumGetSize<T>());
         }
     }
 }
