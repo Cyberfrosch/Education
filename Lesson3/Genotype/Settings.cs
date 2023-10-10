@@ -50,8 +50,7 @@ namespace Genotype
             recessiveRadioButton.Checked = (allele == Allele.Recessive);
         }
 
-        // Обработка события Click для всех RadioButton, чтобы не генерить херову кучу строк одинакового кода
-        // + тут фича с тэгом, которую нам давал Конев, наверное увидит это и похвалит (нет)
+        // Обработка события Click для всех RadioButton, чтобы не генерить кучу строк одинакового кода
         private void AlleleRadioButton_Click(object sender, EventArgs e)
         {
             RadioButton radioButton = (RadioButton)sender;

@@ -1,4 +1,5 @@
 using System.Drawing;
+using Utils;
 
 namespace Genotype
 {
@@ -36,14 +37,14 @@ namespace Genotype
 
         private void BtGenerate_Click(object sender, EventArgs e)
         {
-            offspring = father.Breed(mother, OffspringNumber);
+            //offspring = father.Breed(mother, OffspringNumber);
 
-            foreach (var child in offspring)
-            {
-                child.Draw(pictureBox1, new Point(4, 4), 48);
-            }
+            //foreach (var child in offspring)
+            //{
+            //    child.Draw(pictureBox1, new Point(4, 4), 48);
+            //}
 
-            //father.Draw(pictureBox1, new Point(4, 4), 48);
+            father.Draw(pictureBox1, new Point(4, 4), 48);
         }
 
         private void BtSettings_Click(object sender, EventArgs e)
@@ -78,7 +79,7 @@ namespace Genotype
         public Allele allele2;
 
         // в C# оказывается нет макросов и глобальных переменных (всё внутри класса), т.ч. ничего лучше не придумал:
-        public static readonly int alleleSize = Utils.EnumGetSize<Allele>();
+        public static readonly int alleleSize = EnumUtilities.GetSize<Allele>();
 
         public string name;
 
@@ -199,7 +200,7 @@ namespace Genotype
 
             for (int i = 1; i <= count; ++i)
             {
-                Essence child = Child(partner, "Child" + i.ToString(), Utils.EnumGetRandomValue<Sexes>(sexSize));
+                Essence child = Child(partner, "Child" + i.ToString(), EnumUtilities.GetRandomValue<Sexes>(sexSize));
                 children.Add(child);
             }
 
@@ -220,7 +221,7 @@ namespace Genotype
 
         public EssenseAttribute1(string name, Sexes sex) : base(name, sex)
         {
-            Genotype = new(Utils.EnumGetRandomValue<Allele>(), Utils.EnumGetRandomValue<Allele>(), name);
+            Genotype = new(EnumUtilities.GetRandomValue<Allele>(), EnumUtilities.GetRandomValue<Allele>(), name);
 
             EssensePhenotype.LineWidth = Genotype.Dominant ? 4 : 1;
         }
