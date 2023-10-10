@@ -1,4 +1,7 @@
 using System.Drawing;
+using System.Security.Policy;
+using System.Windows.Forms;
+using System.Xml;
 using Utils;
 
 namespace Genotype
@@ -14,20 +17,23 @@ namespace Genotype
         public EssenseAttribute1 father;
         public EssenseAttribute1 mother;
 
-        List<EssenseAttribute1> offspring;
-
+        public List<Essence> offspring;
         public int OffspringNumber { get; set; }
+
+        private Point _currentPositionPoint;
 
         public Main()
         {
             InitializeComponent();
 
-            // Default params of parents
+            // Set default params
             mother = new EssenseAttribute1("Bagira", Sexes.Female);
             father = new EssenseAttribute1("Balu", Sexes.Male);
             OffspringNumber = 50;
 
             SetLabelValues();
+
+            _currentPositionPoint = new Point(4, 4);
         }
 
         private void SettingsForm_SettingsChanged(object sender, EventArgs e)
@@ -35,16 +41,37 @@ namespace Genotype
             SetLabelValues();
         }
 
+        private void OffsetCurrentPositionPoint(string name)
+        {
+            _currentPositionPoint.X += Essence.size + 10 + name.Length;
+            // почему именно такая проверка - хз, пришел к такому методом тыка, иначе текст выходил за рамки...
+            if (_currentPositionPoint.X + Essence.size + name.Length + (10 * Essence.size / 100) > pictureBox1.Width)
+            {
+                _currentPositionPoint.X = 4;
+                _currentPositionPoint.Y += 2 * Essence.size - (10 * Essence.size / 100);
+            }
+        }
+
+        private void ResetCurrentPositionPoint()
+        {
+            _currentPositionPoint.X = 4;
+            _currentPositionPoint.Y = 4;
+        }
+
         private void BtGenerate_Click(object sender, EventArgs e)
         {
-            //offspring = father.Breed(mother, OffspringNumber);
+            pictureBox1.Refresh();
+            pictureBox1.Controls.Clear();
 
-            //foreach (var child in offspring)
-            //{
-            //    child.Draw(pictureBox1, new Point(4, 4), 48);
-            //}
+            offspring = father.Breed(mother, OffspringNumber);
 
-            father.Draw(pictureBox1, new Point(4, 4), 48);
+            foreach (var child in offspring)
+            {
+                child.Draw(pictureBox1, _currentPositionPoint, Essence.size);
+                OffsetCurrentPositionPoint(child.Name);
+            }
+
+            ResetCurrentPositionPoint();
         }
 
         private void BtSettings_Click(object sender, EventArgs e)
@@ -56,6 +83,7 @@ namespace Genotype
             }
 
             settings.Show();
+            settings.BringToFront();
         }
 
         private void SetLabelValues()
@@ -74,12 +102,12 @@ namespace Genotype
 
     public class Gene
     {
+        // в C# оказывается нет макросов и глобальных переменных (всё внутри класса), т.ч. ничего лучше не придумал:
+        public static readonly int alleleSize = EnumUtilities.GetSize<Allele>();
+
         // enum Allele можно заменить на bool, но стоит ли? менее гибко и читаемо
         public Allele allele1;
         public Allele allele2;
-
-        // в C# оказывается нет макросов и глобальных переменных (всё внутри класса), т.ч. ничего лучше не придумал:
-        public static readonly int alleleSize = EnumUtilities.GetSize<Allele>();
 
         public string name;
 
@@ -170,9 +198,10 @@ namespace Genotype
 
     public abstract class Essence
     {
-        private string _name;
+        public static readonly int sexSize = 2;
+        public static int size = 50;
 
-        public static int sexSize = 2;
+        private string _name;
 
         public string Name
         {
@@ -189,9 +218,18 @@ namespace Genotype
             EssensePhenotype = new Phenotype((Sex == Sexes.Male) ? Shapes.Triangle : Shapes.Circle);
         }
 
-        protected virtual Essence Child(Essence partner, string name, Sexes sex)
+        public void Draw(Control control, Point point, int size)
         {
-            return null;
+            Graphics graphics = control.CreateGraphics();
+
+            Label nameLabel = new();
+            nameLabel.Text = Name;
+            nameLabel.Location = new Point(point.X, point.Y + (size + (10 * size / 100)));
+            nameLabel.AutoSize = true;
+
+            control.Controls.Add(nameLabel);
+
+            EssensePhenotype.Draw(graphics, point, size);
         }
 
         public List<Essence> Breed(Essence partner, int count)
@@ -207,12 +245,7 @@ namespace Genotype
             return children;
         }
 
-        public void Draw(Control control, Point point, int size)
-        {
-            Graphics graphics = control.CreateGraphics();
-
-            EssensePhenotype.Draw(graphics, point, size);
-        }
+        protected abstract Essence Child(Essence partner, string name, Sexes sex);
     }
 
     public class EssenseAttribute1 : Essence
@@ -233,7 +266,7 @@ namespace Genotype
             EssensePhenotype.LineWidth = Genotype.Dominant ? 4 : 1;
         }
 
-        protected virtual Essence Child(Essence partner, string name, Sexes sex)
+        protected override Essence Child(Essence partner, string name, Sexes sex)
         {
             Gene childGen = Genotype + (partner as EssenseAttribute1).Genotype;
             Essence child = new EssenseAttribute1(name, sex, childGen);

@@ -75,6 +75,14 @@ namespace Genotype
                 {
                     _main.father.Genotype.allele2 = allele;
                 }
+                else
+                {
+                    _main.mother.Genotype.allele1 = Allele.Dominant;
+                    _main.mother.Genotype.allele2 = Allele.Recessive;
+
+                    _main.father.Genotype.allele1 = Allele.Recessive;
+                    _main.father.Genotype.allele2 = Allele.Dominant;
+                }
 
                 SettingsChanged?.Invoke(this, EventArgs.Empty);
             }
