@@ -1,74 +1,243 @@
-using System.Drawing;
-using System.Security.Policy;
+using System.DirectoryServices.ActiveDirectory;
+using System.Drawing.Text;
 using System.Windows.Forms;
-using System.Xml;
-using Utils;
+using System.Xml.Linq;
+using System.Collections.Generic;
+using System.Text.RegularExpressions;
+using static Genotype.Main;
+using Microsoft.VisualBasic.ApplicationServices;
 
 namespace Genotype
 {
-    public enum Sexes { Female, Male };
-    public enum Shapes { Circle, Triangle };
-    public enum Allele { Recessive, Dominant };
-
     public partial class Main : Form
     {
-        private Settings settings;
+        public static List<string> maleNamesList = FillListOfNames($"{Application.StartupPath}male_names_rus.txt");
+        public static List<string> femaleNamesList = FillListOfNames($"{Application.StartupPath}female_names_rus.txt");
 
-        public EssenseAttribute1 father;
-        public EssenseAttribute1 mother;
+        public Essence mother;
+        public Essence father;
 
         public List<Essence> offspring;
-        public int OffspringNumber { get; set; }
+        public int offspringNumber;
 
-        private Point _currentPositionPoint;
+        public List<GroupBoxList> GroupBoxListsMother;
+        public List<GroupBoxList> GroupBoxListsFather;
+
+        public readonly List<string> attrNames;
+        public readonly List<string> alleleNames;
+
+        private Point _CurrentPositionPoint;
 
         public Main()
         {
             InitializeComponent();
 
-            // Set default params
-            mother = new EssenseAttribute1("Bagira", Sexes.Female);
-            father = new EssenseAttribute1("Balu", Sexes.Male);
-            OffspringNumber = 50;
+            GroupBoxListsMother = new List<GroupBoxList>();
+            GroupBoxListsFather = new List<GroupBoxList>();
 
+            attrNames = new List<string>() { "LineWidth", "FillColor", "LineColor" };
+            alleleNames = new List<string>() { "Allele 1", "Allele 2" };
+
+            CreateGenesControls(FlpFather);
+            UpdateFather();
+            CreateGenesControls(FlpMother);
+            UpdateMother();
+
+            offspringNumber = 10;
             SetLabelValues();
 
-            _currentPositionPoint = new Point(4, 4);
+            TbOffspringNumber.Text = offspringNumber.ToString();
+            LbOffspringNumberCurrent.Text = TbOffspringNumber.Text;
+
+            _CurrentPositionPoint = new Point(2, 2);
+
+            PbOffspring.Parent = PnOffspring;
+
+            ListBoxChildren.DisplayMember = "Name";
+
+            SetLbGeneNames();
         }
 
-        private void SettingsForm_SettingsChanged(object sender, EventArgs e)
+        private static List<string> FillListOfNames(in string filename)
         {
-            SetLabelValues();
-        }
+            string filePath = filename;
+            List<string> names = new List<string>();
 
-        private void OffsetCurrentPositionPoint(string name)
-        {
-            _currentPositionPoint.X += Essence.size + 10 + name.Length;
-            // почему именно такая проверка - хз, пришел к такому методом тыка, иначе текст выходил за рамки...
-            if (_currentPositionPoint.X + Essence.size + name.Length + (10 * Essence.size / 100) > pictureBox1.Width)
+            StreamReader reader = new StreamReader(filePath);
+
+            string line;
+
+            while ((line = reader.ReadLine()) != null)
             {
-                _currentPositionPoint.X = 4;
-                _currentPositionPoint.Y += 2 * Essence.size - (10 * Essence.size / 100);
+                names.Add(line);
+            }
+
+            return names;
+        }
+
+        private void SetLbGeneNames()
+        {
+            LbGene1Name.Text = attrNames[0];
+            LbGene2Name.Text = attrNames[1];
+            LbGene3Name.Text = attrNames[2];
+        }
+        private void SetAllelesNames(Animal_tertiary essence)
+        {
+            if (essence != null)
+            {
+                LbGene1Allele1.Text = essence.Gene1.ToString(essence.Gene1.allele1);
+                LbGene1Allele2.Text = essence.Gene1.ToString(essence.Gene1.allele2);
+
+                LbGene2Allele1.Text = essence.Gene2.ToString(essence.Gene2.allele1);
+                LbGene2Allele2.Text = essence.Gene2.ToString(essence.Gene2.allele2);
+
+                LbGene3Allele1.Text = essence.Gene3.ToString(essence.Gene3.allele1);
+                LbGene3Allele2.Text = essence.Gene3.ToString(essence.Gene3.allele2);
+            }
+        }
+
+        private void UpdateFather()
+        {
+            // PbFatherIcon.Refresh();
+            father = CreateParent(Sex.Male, GroupBoxListsFather);
+            father.Draw(PbFather, new Point(4, 4), Essence.size);
+        }
+        private void UpdateMother()
+        {
+            // PbFatherIcon.Refresh();
+            mother = CreateParent(Sex.Female, GroupBoxListsMother);
+            mother.Draw(PbMother, new Point(4, 4), Essence.size);
+        }
+
+        Essence CreateParent(Sex sex, List<GroupBoxList> groupBoxLists)
+        {
+            string name = (sex == Sex.Female) ? "Buska" : "Murzik";
+
+            List<Gene> geneList = new();
+            foreach (GroupBoxList groupBoxList in groupBoxLists)
+            {
+                Allele allele1;
+                Allele allele2;
+
+                if (groupBoxList.Chekboxes[0].Checked)
+                    allele1 = Allele.Dominant;
+                else
+                    allele1 = Allele.Recessive;
+
+                if (groupBoxList.Chekboxes[1].Checked)
+                    allele2 = Allele.Dominant;
+                else
+                    allele2 = Allele.Recessive;
+
+                geneList.Add(new Gene(allele1, allele2, groupBoxList.GroupBox.Text));
+            }
+
+            while (geneList.Count < 3)
+            {
+                geneList.Add(new Gene(Allele.Recessive, Allele.Recessive, "Empty Gene"));
+            }
+
+            return new Animal_tertiary(name, sex, geneList[0], geneList[1], geneList[2]);
+        }
+
+        private void SetLabelValues()
+        {
+            LbMotherName.Text = $"Name: {mother.Name}";
+
+            LbFatherName.Text = $"Name: {father.Name}";
+        }
+
+        public class GroupBoxList
+        {
+            public GroupBox GroupBox;
+            public List<CheckBox> Chekboxes;
+
+            public GroupBoxList(GroupBox groupBox)
+            {
+                GroupBox = groupBox;
+                Chekboxes = new List<CheckBox>();
+            }
+
+            public void AddToGroupCheckBoxes(CheckBox checkBox)
+            {
+                GroupBox.Controls.Add(checkBox);
+                Chekboxes.Add(checkBox);
+            }
+        }
+
+        void CreateGenesControls(FlowLayoutPanel flPanel)
+        {
+            if (flPanel != null)
+                flPanel.Controls.Clear();
+            for (int i = 0; i < attrNames.Count; ++i)
+            {
+                Random random = new();
+                GroupBox grBox = new();
+                Point locPoint = new Point(10, 20);
+
+                grBox.Text = attrNames[i];
+                GroupBoxList groupBox = new GroupBoxList(grBox);
+
+                if (flPanel.Name == "FlpFather")
+                {
+                    GroupBoxListsFather.Add(groupBox);
+                }
+                else if (flPanel.Name == "FlpMother")
+                {
+                    GroupBoxListsMother.Add(groupBox);
+                }
+
+                for (int j = 0; j < 2; ++j)
+                {
+                    CheckBox check = new();
+
+                    check.Text = alleleNames[j];
+                    check.Checked = random.Next(2) == 0;
+                    groupBox.AddToGroupCheckBoxes(check);
+                    groupBox.Chekboxes[j].Location = locPoint;
+
+                    locPoint = new Point(10, 20 + groupBox.Chekboxes[j].Height);
+                }
+
+                groupBox.GroupBox.Parent = flPanel;
+            }
+        }
+
+        private void OffsetCurrentPositionPoint(string Name)
+        {
+            _CurrentPositionPoint.X += Essence.size + 10 + Name.Length;
+            if (_CurrentPositionPoint.X + Essence.size + Name.Length + (10 * Essence.size / 100) > PbOffspring.Width)
+            {
+                _CurrentPositionPoint.X = 4;
+                _CurrentPositionPoint.Y += 2 * Essence.size - (10 * Essence.size / 100);
+
+                if (_CurrentPositionPoint.Y + Essence.size + 20 + (10 * Essence.size / 100) > PbOffspring.Height)
+                {
+                    PbOffspring.Size = new Size(PbOffspring.Width, PbOffspring.Height + 2 * Essence.size + 20 + (10 * Essence.size / 100));
+                }
             }
         }
 
         private void ResetCurrentPositionPoint()
         {
-            _currentPositionPoint.X = 4;
-            _currentPositionPoint.Y = 4;
+
+            _CurrentPositionPoint.X = 4;
+            _CurrentPositionPoint.Y = 4;
         }
 
-        private void BtGenerate_Click(object sender, EventArgs e)
+        private void BtStart_Click(object sender, EventArgs e)
         {
-            pictureBox1.Refresh();
-            pictureBox1.Controls.Clear();
+            PbOffspring.Refresh();
+            PbOffspring.Controls.Clear();
+            ListBoxChildren.Items.Clear();
 
-            offspring = father.Breed(mother, OffspringNumber);
+            offspring = father.Breed(mother, offspringNumber);
 
-            foreach (var child in offspring)
+            for (int i = 0; i < offspringNumber; ++i)
             {
-                child.Draw(pictureBox1, _currentPositionPoint, Essence.size);
-                OffsetCurrentPositionPoint(child.Name);
+                offspring[i].Draw(PbOffspring, _CurrentPositionPoint, Essence.size);
+                ListBoxChildren.Items.Add(offspring[i]);
+                OffsetCurrentPositionPoint(offspring[i].Name);
             }
 
             ResetCurrentPositionPoint();
@@ -76,227 +245,120 @@ namespace Genotype
 
         private void BtSettings_Click(object sender, EventArgs e)
         {
-            if (settings == null || settings.IsDisposed)
+            PnSettings.Visible = true;
+            PnMain.Visible = false;
+        }
+
+        private void BtSetSettings_Click(object sender, EventArgs e)
+        {
+            PnSettings.Visible = false;
+            PnMain.Visible = true;
+            UpdateFather();
+            UpdateMother();
+            PbOffspring.Invalidate();
+            SetLabelValues();
+        }
+
+        private void Main_Paint(object sender, PaintEventArgs e)
+        {
+            father.Draw(PbFather, _CurrentPositionPoint, Essence.size);
+            mother.Draw(PbMother, _CurrentPositionPoint, Essence.size);
+            ResetCurrentPositionPoint();
+
+            if (offspring != null)
             {
-                settings = new Settings(this);
-                settings.SettingsChanged += SettingsForm_SettingsChanged;
-            }
-
-            settings.Show();
-            settings.BringToFront();
-        }
-
-        private void SetLabelValues()
-        {
-            LbMotherName.Text = $"Name: {mother.Name}";
-            LbMotherGen.Text = "Genotype: ";
-            LbMotherGen.Text += $"A1: {mother.Genotype.ToString(mother.Genotype.allele1)}; ";
-            LbMotherGen.Text += $"A2: {mother.Genotype.ToString(mother.Genotype.allele2)}";
-
-            LbFatherName.Text = $"Name: {father.Name}";
-            LbFatherGen.Text = "Genotype: ";
-            LbFatherGen.Text += $"A1: {father.Genotype.ToString(father.Genotype.allele1)}; ";
-            LbFatherGen.Text += $"A2: {father.Genotype.ToString(father.Genotype.allele2)}";
-        }
-    }
-
-    public class Gene
-    {
-        // в C# оказывается нет макросов и глобальных переменных (всё внутри класса), т.ч. ничего лучше не придумал:
-        public static readonly int alleleSize = EnumUtilities.GetSize<Allele>();
-
-        // enum Allele можно заменить на bool, но стоит ли? менее гибко и читаемо
-        public Allele allele1;
-        public Allele allele2;
-
-        public string name;
-
-        public bool Dominant
-        {
-            get { return allele1 == Allele.Dominant || allele2 == Allele.Dominant; }
-        }
-
-        public Gene(Allele allele1, Allele allele2, string name)
-        {
-            this.allele1 = allele1;
-            this.allele2 = allele2;
-            this.name = name;
-        }
-
-        public string ToString(Allele allele)
-        {
-            return allele == Allele.Dominant ? "Dominant" : "Recessive";
-        }
-
-        public static Gene operator +(Gene gen1, Gene gen2)
-        {
-            Random random = new();
-            Thread.Sleep(1);
-
-            Allele allele1 = random.Next(alleleSize) == 0 ? gen1.allele1 : gen2.allele1;
-            Allele allele2 = random.Next(alleleSize) == 0 ? gen1.allele2 : gen2.allele2;
-
-            return new Gene(allele1, allele2, "Pepe");
-        }
-    }
-
-    public class Phenotype
-    {
-        public Shapes Shape { get; set; }
-        public Color LineColor { get; set; }
-        public Color FillColor { get; set; }
-        public float LineWidth { get; set; }
-
-        public Phenotype()
-        {
-            Shape = Shapes.Circle;
-            LineColor = Color.Black;
-            FillColor = Color.Empty;
-            LineWidth = 1;
-        }
-
-        public Phenotype(Shapes shape) : this()
-        {
-            Shape = shape;
-        }
-
-        public Phenotype(Shapes shape, Color lineColor) : this(shape)
-        {
-            LineColor = lineColor;
-        }
-
-        public Phenotype(Shapes shape, Color lineColor, Color fillColor) : this(shape, lineColor)
-        {
-            FillColor = fillColor;
-        }
-
-        public Phenotype(Shapes shape, Color lineColor, Color fillColor, float lineWidth) : this(shape, lineColor, fillColor)
-        {
-            LineWidth = lineWidth;
-        }
-
-        public void Draw(Graphics graphics, Point point, int size)
-        {
-            Pen pen = new(LineColor, LineWidth);
-            Brush brush = new SolidBrush(FillColor);
-
-            Rectangle rectangle = new(point, new Size(size, size));
-
-            switch (Shape)
-            {
-                case Shapes.Circle:
-                    graphics.FillEllipse(brush, rectangle);
-                    graphics.DrawEllipse(pen, rectangle);
-                    break;
-                case Shapes.Triangle:
-                    graphics.FillTriangle(brush, rectangle);
-                    graphics.DrawTriangle(pen, rectangle);
-                    break;
+                foreach (Essence child in offspring)
+                {
+                    child.Draw(PbOffspring, _CurrentPositionPoint, Essence.size);
+                    OffsetCurrentPositionPoint(child.Name);
+                }
+                ResetCurrentPositionPoint();
             }
         }
-    }
 
-    public abstract class Essence
-    {
-        public static readonly int sexSize = 2;
-        public static int size = 50;
-
-        private string _name;
-
-        public string Name
+        private void Main_Resize(object sender, EventArgs e)
         {
-            get { return _name; }
-            set { _name = (value != string.Empty) ? value : "Barsick"; }
-        }
-        public Sexes Sex { get; set; }
-        public Phenotype EssensePhenotype { get; set; }
-
-        public Essence(string name, Sexes sex)
-        {
-            Name = name;
-            Sex = sex;
-            EssensePhenotype = new Phenotype((Sex == Sexes.Male) ? Shapes.Triangle : Shapes.Circle);
+            PnMain.Size = ClientSize;
+            PnSettings.Size = ClientSize;
         }
 
-        public void Draw(Control control, Point point, int size)
+        private void ListboxChildren_SelectedIndexChanged(object sender, EventArgs e)
         {
-            Graphics graphics = control.CreateGraphics();
-
-            Label nameLabel = new();
-            nameLabel.Text = Name;
-            nameLabel.Location = new Point(point.X, point.Y + (size + (10 * size / 100)));
-            nameLabel.AutoSize = true;
-
-            control.Controls.Add(nameLabel);
-
-            EssensePhenotype.Draw(graphics, point, size);
-        }
-
-        public List<Essence> Breed(Essence partner, int count)
-        {
-            List<Essence> children = new List<Essence>();
-
-            for (int i = 1; i <= count; ++i)
+            Animal_tertiary selectedChild = (Animal_tertiary)ListBoxChildren.SelectedItem;
+            if (selectedChild != null)
             {
-                Essence child = Child(partner, "Child" + i.ToString(), EnumUtilities.GetRandomValue<Sexes>(sexSize));
-                children.Add(child);
+                PbChild.Image = selectedChild.EssenceIcon;
+                LbChildName.Text = selectedChild.Name;
+                LbChildSex.Text = selectedChild.ToStringSex();
+                SetAllelesNames(selectedChild);
             }
-
-            return children;
         }
 
-        protected abstract Essence Child(Essence partner, string name, Sexes sex);
-    }
-
-    public class EssenseAttribute1 : Essence
-    {
-        public Gene Genotype { get; set; }
-
-        public EssenseAttribute1(string name, Sexes sex) : base(name, sex)
+        private void RbSortMale_CheckedChanged(object sender, EventArgs e)
         {
-            Genotype = new(EnumUtilities.GetRandomValue<Allele>(), EnumUtilities.GetRandomValue<Allele>(), name);
-
-            EssensePhenotype.LineWidth = Genotype.Dominant ? 4 : 1;
+            UpdateListBox();
         }
 
-        public EssenseAttribute1(string name, Sexes sex, Gene gene1) : base(name, sex)
+        private void RbSortFemale_CheckedChanged(object sender, EventArgs e)
         {
-            Genotype = gene1;
-
-            EssensePhenotype.LineWidth = Genotype.Dominant ? 4 : 1;
+            UpdateListBox();
         }
 
-        protected override Essence Child(Essence partner, string name, Sexes sex)
+        private void CbSortName_CheckedChanged(object sender, EventArgs e)
         {
-            Gene childGen = Genotype + (partner as EssenseAttribute1).Genotype;
-            Essence child = new EssenseAttribute1(name, sex, childGen);
-
-            return child;
-        }
-    }
-
-    public static class Extensions
-    {
-        public static void FillTriangle(this Graphics graphics, Brush brush, Rectangle rectangle)
-        {
-            Point[] points = new Point[3];
-
-            points[0] = new Point(rectangle.Left, rectangle.Top);
-            points[1] = new Point(rectangle.Right, rectangle.Top);
-            points[2] = new Point(rectangle.Left + rectangle.Width / 2, rectangle.Bottom);
-
-            graphics.FillPolygon(brush, points);
+            UpdateListBox();
         }
 
-        public static void DrawTriangle(this Graphics graphics, Pen pen, Rectangle rectangle)
+        private void UpdateListBox()
         {
-            Point[] points = new Point[3];
+            if (offspring != null)
+            {
+                List<Essence> filteredList = new List<Essence>();
+                if (RbSortMale.Checked)
+                {
+                    filteredList = offspring.Where(child => child.sex == Sex.Male).ToList();
+                }
+                else if (RbSortFemale.Checked)
+                {
+                    filteredList = offspring.Where(child => child.sex == Sex.Female).ToList();
+                }
+                else if (RbSortNone.Checked)
+                {
+                    filteredList = offspring.ToList();
+                }
+                else
+                {
+                    filteredList = offspring.ToList();
+                }
+                if (CbSortName.Checked)
+                {
+                    filteredList = filteredList.OrderBy(child => child.Name).ToList();
+                }
+                ListBoxChildren.Items.Clear();
 
-            points[0] = new Point(rectangle.Left, rectangle.Top);
-            points[1] = new Point(rectangle.Right, rectangle.Top);
-            points[2] = new Point(rectangle.Left + rectangle.Width / 2, rectangle.Bottom);
+                foreach (var child in filteredList)
+                {
+                    ListBoxChildren.Items.Add(child);
+                }
+            }
+        }
 
-            graphics.DrawPolygon(pen, points);
+        private void TsmiMain_Click(object sender, EventArgs e)
+        {
+            PnMain.Visible = true;
+            PnSettings.Visible = false;
+        }
+
+        private void TsmiSettings_Click(object sender, EventArgs e)
+        {
+            PnMain.Visible = false;
+            PnSettings.Visible = true;
+        }
+
+        private void TbOffspringNumber_Scroll(object sender, EventArgs e)
+        {
+            offspringNumber = TbOffspringNumber.Value;
+            LbOffspringNumberCurrent.Text = offspringNumber.ToString();
         }
     }
 }
