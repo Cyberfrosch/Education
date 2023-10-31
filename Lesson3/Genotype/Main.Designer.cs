@@ -39,7 +39,13 @@
             PbFather = new PictureBox();
             PbMother = new PictureBox();
             PnSettings = new Panel();
-            LbOffspringNumberCurrent = new Label();
+            LbAttributesNow = new Label();
+            LbAttributesMax = new Label();
+            LbAttributesMin = new Label();
+            TbAttributesNumber = new TrackBar();
+            LbAttributes = new Label();
+            BtApply = new Button();
+            LbOffspringNumberNow = new Label();
             LbOffspringNumberMax = new Label();
             LbOffspringNumberMin = new Label();
             TbOffspringNumber = new TrackBar();
@@ -79,6 +85,7 @@
             ((System.ComponentModel.ISupportInitialize)PbFather).BeginInit();
             ((System.ComponentModel.ISupportInitialize)PbMother).BeginInit();
             PnSettings.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)TbAttributesNumber).BeginInit();
             ((System.ComponentModel.ISupportInitialize)TbOffspringNumber).BeginInit();
             PnChildInfo.SuspendLayout();
             GbFilter.SuspendLayout();
@@ -194,7 +201,13 @@
             // 
             // PnSettings
             // 
-            PnSettings.Controls.Add(LbOffspringNumberCurrent);
+            PnSettings.Controls.Add(LbAttributesNow);
+            PnSettings.Controls.Add(LbAttributesMax);
+            PnSettings.Controls.Add(LbAttributesMin);
+            PnSettings.Controls.Add(TbAttributesNumber);
+            PnSettings.Controls.Add(LbAttributes);
+            PnSettings.Controls.Add(BtApply);
+            PnSettings.Controls.Add(LbOffspringNumberNow);
             PnSettings.Controls.Add(LbOffspringNumberMax);
             PnSettings.Controls.Add(LbOffspringNumberMin);
             PnSettings.Controls.Add(TbOffspringNumber);
@@ -206,18 +219,77 @@
             PnSettings.Location = new Point(0, 37);
             PnSettings.Margin = new Padding(4);
             PnSettings.Name = "PnSettings";
-            PnSettings.Size = new Size(1249, 625);
+            PnSettings.Size = new Size(1249, 497);
             PnSettings.TabIndex = 8;
             PnSettings.Visible = false;
             // 
-            // LbOffspringNumberCurrent
+            // LbAttributesNow
             // 
-            LbOffspringNumberCurrent.AutoSize = true;
-            LbOffspringNumberCurrent.Location = new Point(276, 415);
-            LbOffspringNumberCurrent.Name = "LbOffspringNumberCurrent";
-            LbOffspringNumberCurrent.Size = new Size(22, 25);
-            LbOffspringNumberCurrent.TabIndex = 25;
-            LbOffspringNumberCurrent.Text = "0";
+            LbAttributesNow.AutoSize = true;
+            LbAttributesNow.Location = new Point(587, 415);
+            LbAttributesNow.Name = "LbAttributesNow";
+            LbAttributesNow.Size = new Size(22, 25);
+            LbAttributesNow.TabIndex = 31;
+            LbAttributesNow.Text = "0";
+            // 
+            // LbAttributesMax
+            // 
+            LbAttributesMax.AutoSize = true;
+            LbAttributesMax.Location = new Point(550, 459);
+            LbAttributesMax.Name = "LbAttributesMax";
+            LbAttributesMax.Size = new Size(22, 25);
+            LbAttributesMax.TabIndex = 30;
+            LbAttributesMax.Text = "3";
+            // 
+            // LbAttributesMin
+            // 
+            LbAttributesMin.AutoSize = true;
+            LbAttributesMin.Location = new Point(336, 459);
+            LbAttributesMin.Name = "LbAttributesMin";
+            LbAttributesMin.Size = new Size(22, 25);
+            LbAttributesMin.TabIndex = 29;
+            LbAttributesMin.Text = "1";
+            // 
+            // TbAttributesNumber
+            // 
+            TbAttributesNumber.Location = new Point(327, 415);
+            TbAttributesNumber.Maximum = 3;
+            TbAttributesNumber.Minimum = 1;
+            TbAttributesNumber.Name = "TbAttributesNumber";
+            TbAttributesNumber.Size = new Size(254, 69);
+            TbAttributesNumber.TabIndex = 28;
+            TbAttributesNumber.Value = 1;
+            TbAttributesNumber.Scroll += TbAttributesNumber_Scroll;
+            // 
+            // LbAttributes
+            // 
+            LbAttributes.AutoSize = true;
+            LbAttributes.Font = new Font("Segoe UI", 12F, FontStyle.Bold, GraphicsUnit.Point);
+            LbAttributes.Location = new Point(323, 374);
+            LbAttributes.Margin = new Padding(4, 0, 4, 0);
+            LbAttributes.Name = "LbAttributes";
+            LbAttributes.Size = new Size(129, 32);
+            LbAttributes.TabIndex = 27;
+            LbAttributes.Text = "Attributes";
+            // 
+            // BtApply
+            // 
+            BtApply.Location = new Point(1105, 431);
+            BtApply.Name = "BtApply";
+            BtApply.Size = new Size(137, 53);
+            BtApply.TabIndex = 26;
+            BtApply.Text = "Apply";
+            BtApply.UseVisualStyleBackColor = true;
+            BtApply.Click += BtApply_Click;
+            // 
+            // LbOffspringNumberNow
+            // 
+            LbOffspringNumberNow.AutoSize = true;
+            LbOffspringNumberNow.Location = new Point(276, 415);
+            LbOffspringNumberNow.Name = "LbOffspringNumberNow";
+            LbOffspringNumberNow.Size = new Size(22, 25);
+            LbOffspringNumberNow.TabIndex = 25;
+            LbOffspringNumberNow.Text = "0";
             // 
             // LbOffspringNumberMax
             // 
@@ -235,7 +307,7 @@
             LbOffspringNumberMin.Name = "LbOffspringNumberMin";
             LbOffspringNumberMin.Size = new Size(22, 25);
             LbOffspringNumberMin.TabIndex = 23;
-            LbOffspringNumberMin.Text = "0";
+            LbOffspringNumberMin.Text = "1";
             // 
             // TbOffspringNumber
             // 
@@ -344,10 +416,10 @@
             RbSortNone.Location = new Point(0, 72);
             RbSortNone.Margin = new Padding(4);
             RbSortNone.Name = "RbSortNone";
-            RbSortNone.Size = new Size(141, 29);
+            RbSortNone.Size = new Size(57, 29);
             RbSortNone.TabIndex = 2;
             RbSortNone.TabStop = true;
-            RbSortNone.Text = "View m and f";
+            RbSortNone.Text = "All";
             RbSortNone.UseVisualStyleBackColor = true;
             // 
             // RbSortFemale
@@ -356,10 +428,10 @@
             RbSortFemale.Location = new Point(0, 35);
             RbSortFemale.Margin = new Padding(4);
             RbSortFemale.Name = "RbSortFemale";
-            RbSortFemale.Size = new Size(132, 29);
+            RbSortFemale.Size = new Size(93, 29);
             RbSortFemale.TabIndex = 1;
             RbSortFemale.TabStop = true;
-            RbSortFemale.Text = "View female";
+            RbSortFemale.Text = "Female";
             RbSortFemale.UseVisualStyleBackColor = true;
             RbSortFemale.CheckedChanged += RbSortFemale_CheckedChanged;
             // 
@@ -369,10 +441,10 @@
             RbSortMale.Location = new Point(-1, -2);
             RbSortMale.Margin = new Padding(4);
             RbSortMale.Name = "RbSortMale";
-            RbSortMale.Size = new Size(117, 29);
+            RbSortMale.Size = new Size(75, 29);
             RbSortMale.TabIndex = 0;
             RbSortMale.TabStop = true;
-            RbSortMale.Text = "View male";
+            RbSortMale.Text = "Male";
             RbSortMale.UseVisualStyleBackColor = true;
             RbSortMale.CheckedChanged += RbSortMale_CheckedChanged;
             // 
@@ -570,10 +642,10 @@
             AutoScroll = true;
             AutoScrollMinSize = new Size(700, 500);
             ClientSize = new Size(1745, 710);
+            Controls.Add(PnSettings);
             Controls.Add(PnChildInfo);
             Controls.Add(PnMain);
             Controls.Add(MenuStrip);
-            Controls.Add(PnSettings);
             Margin = new Padding(4);
             MinimumSize = new Size(1767, 766);
             Name = "Main";
@@ -588,6 +660,7 @@
             ((System.ComponentModel.ISupportInitialize)PbMother).EndInit();
             PnSettings.ResumeLayout(false);
             PnSettings.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)TbAttributesNumber).EndInit();
             ((System.ComponentModel.ISupportInitialize)TbOffspringNumber).EndInit();
             PnChildInfo.ResumeLayout(false);
             PnChildInfo.PerformLayout();
@@ -657,11 +730,17 @@
         private RadioButton RbSortMale;
         private RadioButton RbSortNone;
         private TrackBar TbOffspringNumber;
-        private Label LbOffspringNumberCurrent;
+        private Label LbOffspringNumberNow;
         private Label LbOffspringNumberMax;
         private Label LbOffspringNumberMin;
         private MenuStrip MenuStrip;
         private ToolStripMenuItem TsmiMain;
         private ToolStripMenuItem TsmiSettings;
+        private Button BtApply;
+        private Label LbAttributesNow;
+        private Label LbAttributesMax;
+        private Label LbAttributesMin;
+        private TrackBar TbAttributesNumber;
+        private Label LbAttributes;
     }
 }

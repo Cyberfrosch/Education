@@ -19,6 +19,7 @@ namespace Genotype
 
         public List<Essence> offspring;
         public int offspringNumber;
+        public int attrNumber;
 
         public List<GroupBoxList> GroupBoxListsMother;
         public List<GroupBoxList> GroupBoxListsFather;
@@ -32,22 +33,28 @@ namespace Genotype
         {
             InitializeComponent();
 
+            Random random = new();
+
             GroupBoxListsMother = new List<GroupBoxList>();
             GroupBoxListsFather = new List<GroupBoxList>();
 
             attrNames = new List<string>() { "LineWidth", "FillColor", "LineColor" };
             alleleNames = new List<string>() { "Allele 1", "Allele 2" };
 
+            attrNumber = random.Next(1, 4);
+            TbAttributesNumber.Value = attrNumber;
+            LbAttributesNow.Text = attrNumber.ToString();
+
             CreateGenesControls(FlpFather);
             UpdateFather();
             CreateGenesControls(FlpMother);
             UpdateMother();
 
-            offspringNumber = 10;
             SetLabelValues();
 
-            TbOffspringNumber.Text = offspringNumber.ToString();
-            LbOffspringNumberCurrent.Text = TbOffspringNumber.Text;
+            offspringNumber = random.Next(1, 101);
+            TbOffspringNumber.Value = offspringNumber;
+            LbOffspringNumberNow.Text = offspringNumber.ToString();
 
             _CurrentPositionPoint = new Point(2, 2);
 
@@ -81,6 +88,7 @@ namespace Genotype
             LbGene2Name.Text = attrNames[1];
             LbGene3Name.Text = attrNames[2];
         }
+
         private void SetAllelesNames(Animal_tertiary essence)
         {
             if (essence != null)
@@ -98,52 +106,54 @@ namespace Genotype
 
         private void UpdateFather()
         {
-            // PbFatherIcon.Refresh();
-            father = CreateParent(Sex.Male, GroupBoxListsFather);
+            father = CreateEssence(Sex.Male, GroupBoxListsFather);
             father.Draw(PbFather, new Point(4, 4), Essence.size);
         }
         private void UpdateMother()
         {
-            // PbFatherIcon.Refresh();
-            mother = CreateParent(Sex.Female, GroupBoxListsMother);
+            mother = CreateEssence(Sex.Female, GroupBoxListsMother);
             mother.Draw(PbMother, new Point(4, 4), Essence.size);
         }
 
-        Essence CreateParent(Sex sex, List<GroupBoxList> groupBoxLists)
+        public Essence CreateEssence(Sex sex, List<GroupBoxList> groupBoxLists, params Gene[] genes)
         {
-            string name = (sex == Sex.Female) ? "Buska" : "Murzik";
+            string name = (sex == Sex.Female) ? "Bagira" : "Balu";
 
-            List<Gene> geneList = new();
+            List<Gene> geneList = new List<Gene>(genes);
+
             foreach (GroupBoxList groupBoxList in groupBoxLists)
             {
-                Allele allele1;
-                Allele allele2;
-
-                if (groupBoxList.Chekboxes[0].Checked)
-                    allele1 = Allele.Dominant;
-                else
-                    allele1 = Allele.Recessive;
-
-                if (groupBoxList.Chekboxes[1].Checked)
-                    allele2 = Allele.Dominant;
-                else
-                    allele2 = Allele.Recessive;
-
+                Allele allele1 = groupBoxList.Chekboxes[0].Checked ? Allele.Dominant : Allele.Recessive;
+                Allele allele2 = groupBoxList.Chekboxes[1].Checked ? Allele.Dominant : Allele.Recessive;
                 geneList.Add(new Gene(allele1, allele2, groupBoxList.GroupBox.Text));
             }
 
-            while (geneList.Count < 3)
-            {
-                geneList.Add(new Gene(Allele.Recessive, Allele.Recessive, "Empty Gene"));
-            }
+            return CreateEssenceInstance(name, sex, geneList);
+        }
 
-            return new Animal_tertiary(name, sex, geneList[0], geneList[1], geneList[2]);
+        private Essence CreateEssenceInstance(string name, Sex sex, List<Gene> geneList)
+        {
+            if (geneList.Count == 3)
+            {
+                return new Animal_tertiary(name, sex, geneList[0], geneList[1], geneList[2]);
+            }
+            else if (geneList.Count == 2)
+            {
+                return new Animal_secondary(name, sex, geneList[0], geneList[1]);
+            }
+            else if (geneList.Count == 1)
+            {
+                return new Animal(name, sex, geneList[0]);
+            }
+            else
+            {
+                throw new Exception("Unknown size");
+            }
         }
 
         private void SetLabelValues()
         {
             LbMotherName.Text = $"Name: {mother.Name}";
-
             LbFatherName.Text = $"Name: {father.Name}";
         }
 
@@ -169,7 +179,7 @@ namespace Genotype
         {
             if (flPanel != null)
                 flPanel.Controls.Clear();
-            for (int i = 0; i < attrNames.Count; ++i)
+            for (int i = 0; i < attrNumber; ++i)
             {
                 Random random = new();
                 GroupBox grBox = new();
@@ -203,10 +213,10 @@ namespace Genotype
             }
         }
 
-        private void OffsetCurrentPositionPoint(string Name)
+        private void OffsetCurrentPositionPoint(string name)
         {
-            _CurrentPositionPoint.X += Essence.size + 10 + Name.Length;
-            if (_CurrentPositionPoint.X + Essence.size + Name.Length + (10 * Essence.size / 100) > PbOffspring.Width)
+            _CurrentPositionPoint.X += Essence.size + 10 + name.Length;
+            if (_CurrentPositionPoint.X + Essence.size + name.Length + (10 * Essence.size / 100) > PbOffspring.Width)
             {
                 _CurrentPositionPoint.X = 4;
                 _CurrentPositionPoint.Y += 2 * Essence.size - (10 * Essence.size / 100);
@@ -220,7 +230,6 @@ namespace Genotype
 
         private void ResetCurrentPositionPoint()
         {
-
             _CurrentPositionPoint.X = 4;
             _CurrentPositionPoint.Y = 4;
         }
@@ -247,16 +256,6 @@ namespace Genotype
         {
             PnSettings.Visible = true;
             PnMain.Visible = false;
-        }
-
-        private void BtSetSettings_Click(object sender, EventArgs e)
-        {
-            PnSettings.Visible = false;
-            PnMain.Visible = true;
-            UpdateFather();
-            UpdateMother();
-            PbOffspring.Invalidate();
-            SetLabelValues();
         }
 
         private void Main_Paint(object sender, PaintEventArgs e)
@@ -358,7 +357,34 @@ namespace Genotype
         private void TbOffspringNumber_Scroll(object sender, EventArgs e)
         {
             offspringNumber = TbOffspringNumber.Value;
-            LbOffspringNumberCurrent.Text = offspringNumber.ToString();
+            LbOffspringNumberNow.Text = offspringNumber.ToString();
+        }
+
+        private void TbAttributesNumber_Scroll(object sender, EventArgs e)
+        {
+            GroupBoxListsMother.Clear();
+            GroupBoxListsFather.Clear();
+
+            attrNumber = TbAttributesNumber.Value;
+            LbAttributesNow.Text = attrNumber.ToString();
+
+            CreateGenesControls(FlpFather);
+            CreateGenesControls(FlpMother);
+        }
+
+        private void BtApply_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                UpdateFather();
+                UpdateMother();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+
+            PbOffspring.Invalidate();
         }
     }
 }
