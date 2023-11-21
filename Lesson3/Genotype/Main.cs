@@ -89,20 +89,26 @@ namespace Genotype
             LbGene3Name.Text = attrNames[2];
         }
 
-        private void SetAllelesNames(Animal_tertiary essence)
-        {
-            if (essence != null)
-            {
-                LbGene1Allele1.Text = essence.Gene1.ToString(essence.Gene1.allele1);
-                LbGene1Allele2.Text = essence.Gene1.ToString(essence.Gene1.allele2);
+        //private void SetAllelesNames(Animal_tertiary essence)
+        //{
+        //    if (essence != null)
+        //    {
+        //        LbGene1Allele1.Text = essence.Gene1.ToString(essence.Gene1.allele1);
+        //        LbGene1Allele2.Text = essence.Gene1.ToString(essence.Gene1.allele2);
 
-                LbGene2Allele1.Text = essence.Gene2.ToString(essence.Gene2.allele1);
-                LbGene2Allele2.Text = essence.Gene2.ToString(essence.Gene2.allele2);
+        //        if (essence.Gene2 != null)
+        //        {
+        //            LbGene2Allele2.Text = essence.Gene2.ToString(essence.Gene2.allele2);
+        //            LbGene2Allele1.Text = essence.Gene2.ToString(essence.Gene2.allele1);
+        //        }
 
-                LbGene3Allele1.Text = essence.Gene3.ToString(essence.Gene3.allele1);
-                LbGene3Allele2.Text = essence.Gene3.ToString(essence.Gene3.allele2);
-            }
-        }
+        //        if (essence.Gene3 != null)
+        //        {
+        //            LbGene3Allele1.Text = essence.Gene3.ToString(essence.Gene3.allele1);
+        //            LbGene3Allele2.Text = essence.Gene3.ToString(essence.Gene3.allele2);
+        //        }
+        //    }
+        //}
 
         private void UpdateFather()
         {
@@ -283,13 +289,14 @@ namespace Genotype
 
         private void ListboxChildren_SelectedIndexChanged(object sender, EventArgs e)
         {
-            Animal_tertiary selectedChild = (Animal_tertiary)ListBoxChildren.SelectedItem;
+            Essence selectedChild = (Essence)ListBoxChildren.SelectedItem;
+
             if (selectedChild != null)
             {
                 PbChild.Image = selectedChild.EssenceIcon;
                 LbChildName.Text = selectedChild.Name;
                 LbChildSex.Text = selectedChild.ToStringSex();
-                SetAllelesNames(selectedChild);
+                LbGene1Allele1.Text = selectedChild.ToString();
             }
         }
 

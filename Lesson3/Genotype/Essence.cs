@@ -60,6 +60,11 @@ namespace Genotype
             return allele == Allele.Dominant ? "Dominant" : "Recessive";
         }
 
+        public override string ToString()
+        {
+            return $"{_name} {ToString(allele1)} {ToString(allele2)}";
+        }
+
         public static Gene operator +(Gene gen1, Gene gen2)
         {
             Random random = new();
@@ -201,6 +206,11 @@ namespace Genotype
         }
 
         protected abstract Essence Child(Essence partner, string name, Sex pSex);
+
+        public override string ToString()
+        {
+            return string.Empty;
+        }
     }
 
     public class Animal : Essence
@@ -227,6 +237,11 @@ namespace Genotype
 
             return child;
         }
+
+        public override string ToString()
+        {
+            return Gene1.ToString();
+        }
     }
 
     public class Animal_secondary : Animal
@@ -236,18 +251,18 @@ namespace Genotype
         public Animal_secondary(string name, Sex sex) : base(name, sex)
         {
             Gene2 = new Gene(EnumUtilities.GetRandomValue<Allele>(), EnumUtilities.GetRandomValue<Allele>(), name);
-            EssencePhenotype.FillColor = Gene2.Dominant ? Color.DarkOrchid : Color.Tomato;
+            EssencePhenotype.FillColor = Gene2.Dominant ? Color.Yellow : Color.RebeccaPurple;
         }
         public Animal_secondary(string name, Sex sex, Gene genotype) : base(name, sex, genotype)
         {
             Gene2 = genotype;
-            EssencePhenotype.FillColor = Gene2.Dominant ? Color.DarkOrchid : Color.Tomato;
+            EssencePhenotype.FillColor = Gene2.Dominant ? Color.Yellow : Color.RebeccaPurple;
         }
 
         public Animal_secondary(string name, Sex sex, Gene gene1, Gene gene2) : base(name, sex, gene1)
         {
             Gene2 = gene2;
-            EssencePhenotype.FillColor = Gene2.Dominant ? Color.DarkOrchid : Color.Tomato;
+            EssencePhenotype.FillColor = Gene2.Dominant ? Color.Yellow : Color.RebeccaPurple;
         }
 
         protected override Essence Child(Essence partner, string name, Sex sex)
@@ -259,6 +274,11 @@ namespace Genotype
 
             return child;
         }
+
+        public override string ToString()
+        {
+            return $"{base.ToString()}\n{Gene2}";
+        }
     }
 
     public class Animal_tertiary : Animal_secondary
@@ -268,19 +288,19 @@ namespace Genotype
         public Animal_tertiary(string name, Sex sex) : base(name, sex)
         {
             Gene3 = new Gene(EnumUtilities.GetRandomValue<Allele>(), EnumUtilities.GetRandomValue<Allele>(), name);
-            EssencePhenotype.LineColor = Gene3.Dominant ? Color.SpringGreen : Color.Black;
+            EssencePhenotype.LineColor = Gene3.Dominant ? Color.LightSkyBlue : Color.Black;
         }
 
         public Animal_tertiary(string name, Sex sex, Gene genotype) : base(name, sex, genotype)
         {
             Gene3 = genotype;
-            EssencePhenotype.LineColor = Gene3.Dominant ? Color.SpringGreen : Color.Black;
+            EssencePhenotype.LineColor = Gene3.Dominant ? Color.LightSkyBlue : Color.Black;
         }
 
         public Animal_tertiary(string name, Sex sex, Gene gene1, Gene gene2, Gene gene3) : base(name, sex, gene1, gene2)
         {
             Gene3 = gene3;
-            EssencePhenotype.LineColor = Gene3.Dominant ? Color.SpringGreen : Color.Black;
+            EssencePhenotype.LineColor = Gene3.Dominant ? Color.LightSkyBlue : Color.Black;
         }
 
         protected override Essence Child(Essence partner, string name, Sex sex)
@@ -292,6 +312,11 @@ namespace Genotype
             Essence child = new Animal_tertiary(name, sex, childGen1, childGen2, childGen3);
 
             return child;
+        }
+
+        public override string ToString()
+        {
+            return $"{base.ToString()}\n{Gene3}";
         }
     }
 }

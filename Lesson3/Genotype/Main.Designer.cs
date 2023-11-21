@@ -39,9 +39,10 @@
             PbFather = new PictureBox();
             PbMother = new PictureBox();
             PnSettings = new Panel();
+            LbAttributes3 = new Label();
+            LbAttributes2 = new Label();
             LbAttributesNow = new Label();
-            LbAttributesMax = new Label();
-            LbAttributesMin = new Label();
+            LbAttributes1 = new Label();
             TbAttributesNumber = new TrackBar();
             LbAttributes = new Label();
             BtApply = new Button();
@@ -201,9 +202,10 @@
             // 
             // PnSettings
             // 
+            PnSettings.Controls.Add(LbAttributes3);
+            PnSettings.Controls.Add(LbAttributes2);
             PnSettings.Controls.Add(LbAttributesNow);
-            PnSettings.Controls.Add(LbAttributesMax);
-            PnSettings.Controls.Add(LbAttributesMin);
+            PnSettings.Controls.Add(LbAttributes1);
             PnSettings.Controls.Add(TbAttributesNumber);
             PnSettings.Controls.Add(LbAttributes);
             PnSettings.Controls.Add(BtApply);
@@ -223,32 +225,41 @@
             PnSettings.TabIndex = 8;
             PnSettings.Visible = false;
             // 
+            // LbAttributes3
+            // 
+            LbAttributes3.AutoSize = true;
+            LbAttributes3.Location = new Point(587, 459);
+            LbAttributes3.Name = "LbAttributes3";
+            LbAttributes3.Size = new Size(88, 25);
+            LbAttributes3.TabIndex = 33;
+            LbAttributes3.Text = "Line color";
+            // 
+            // LbAttributes2
+            // 
+            LbAttributes2.AutoSize = true;
+            LbAttributes2.Location = new Point(468, 459);
+            LbAttributes2.Name = "LbAttributes2";
+            LbAttributes2.Size = new Size(78, 25);
+            LbAttributes2.TabIndex = 32;
+            LbAttributes2.Text = "Fill color";
+            // 
             // LbAttributesNow
             // 
             LbAttributesNow.AutoSize = true;
-            LbAttributesNow.Location = new Point(587, 415);
+            LbAttributesNow.Location = new Point(684, 415);
             LbAttributesNow.Name = "LbAttributesNow";
             LbAttributesNow.Size = new Size(22, 25);
             LbAttributesNow.TabIndex = 31;
             LbAttributesNow.Text = "0";
             // 
-            // LbAttributesMax
+            // LbAttributes1
             // 
-            LbAttributesMax.AutoSize = true;
-            LbAttributesMax.Location = new Point(550, 459);
-            LbAttributesMax.Name = "LbAttributesMax";
-            LbAttributesMax.Size = new Size(22, 25);
-            LbAttributesMax.TabIndex = 30;
-            LbAttributesMax.Text = "3";
-            // 
-            // LbAttributesMin
-            // 
-            LbAttributesMin.AutoSize = true;
-            LbAttributesMin.Location = new Point(336, 459);
-            LbAttributesMin.Name = "LbAttributesMin";
-            LbAttributesMin.Size = new Size(22, 25);
-            LbAttributesMin.TabIndex = 29;
-            LbAttributesMin.Text = "1";
+            LbAttributes1.AutoSize = true;
+            LbAttributes1.Location = new Point(336, 459);
+            LbAttributes1.Name = "LbAttributes1";
+            LbAttributes1.Size = new Size(92, 25);
+            LbAttributes1.TabIndex = 29;
+            LbAttributes1.Text = "Line width";
             // 
             // TbAttributesNumber
             // 
@@ -256,7 +267,7 @@
             TbAttributesNumber.Maximum = 3;
             TbAttributesNumber.Minimum = 1;
             TbAttributesNumber.Name = "TbAttributesNumber";
-            TbAttributesNumber.Size = new Size(254, 69);
+            TbAttributesNumber.Size = new Size(351, 69);
             TbAttributesNumber.TabIndex = 28;
             TbAttributesNumber.Value = 1;
             TbAttributesNumber.Scroll += TbAttributesNumber_Scroll;
@@ -268,13 +279,13 @@
             LbAttributes.Location = new Point(323, 374);
             LbAttributes.Margin = new Padding(4, 0, 4, 0);
             LbAttributes.Name = "LbAttributes";
-            LbAttributes.Size = new Size(129, 32);
+            LbAttributes.Size = new Size(226, 32);
             LbAttributes.TabIndex = 27;
-            LbAttributes.Text = "Attributes";
+            LbAttributes.Text = "Attributes number";
             // 
             // BtApply
             // 
-            BtApply.Location = new Point(1105, 431);
+            BtApply.Location = new Point(760, 431);
             BtApply.Name = "BtApply";
             BtApply.Size = new Size(137, 53);
             BtApply.TabIndex = 26;
@@ -738,9 +749,11 @@
         private ToolStripMenuItem TsmiSettings;
         private Button BtApply;
         private Label LbAttributesNow;
-        private Label LbAttributesMax;
-        private Label LbAttributesMin;
+        private Label LbAttributes3;
+        private Label LbAttributes1;
         private TrackBar TbAttributesNumber;
         private Label LbAttributes;
+        private Label LbAttributes2;
+        private Label label2;
     }
 }
