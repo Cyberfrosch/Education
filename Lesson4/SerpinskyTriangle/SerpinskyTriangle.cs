@@ -10,11 +10,15 @@ namespace SerpinskyTriangle
         private Point _activePoint;
         private Color _color;
         private int _depth;
+        private int _currentStep;
+        private Random _random;
 
         public SerpinskyTriangle()
         {
             InitializeComponent();
             Init();
+
+            _random = new Random();
 
             // Set default values
             _color = Color.Black;
@@ -38,13 +42,27 @@ namespace SerpinskyTriangle
 
         private void timer_Tick(object sender, EventArgs e)
         {
-            Random random = new Random();
+            if (_currentStep < _depth)
+            {
+                Point vertexPoint = _vertex[_random.Next(3)];
+                _activePoint = MidPoint(vertexPoint, _activePoint);
+                _bmp.SetPixel(_activePoint.X, _activePoint.Y, _color);
 
-            Point vertexPoint = _vertex[random.Next(3)];
-            _activePoint = MidPoint(vertexPoint, _activePoint);
-            _bmp.SetPixel(_activePoint.X, _activePoint.Y, _color);
+                PbImage.Image = _bmp;
 
-            PbImage.Image = _bmp;
+                _currentStep++;
+            }
+            else
+            {
+                timer1.Stop();
+            }
+            //Random _random = new Random();
+
+            //Point vertexPoint = _vertex[_random.Next(3)];
+            //_activePoint = MidPoint(vertexPoint, _activePoint);
+            //_bmp.SetPixel(_activePoint.X, _activePoint.Y, _color);
+
+            //PbImage.Image = _bmp;
         }
 
         private void BtColor_Click(object sender, EventArgs e)
@@ -66,9 +84,12 @@ namespace SerpinskyTriangle
 
         private void BtDraw_Click(object sender, EventArgs e)
         {
-            ///TODO
+            // TODO
             Clear();
-            ///
+            //
+
+            _currentStep = 0;
+            timer1.Start();
 
             DrawTriangle(_bmp, _color, _vertex[0], _vertex[1], _vertex[2], _depth);
             PbImage.Image = _bmp;
@@ -87,8 +108,6 @@ namespace SerpinskyTriangle
                 Brush brush = new SolidBrush(color);
                 Point[] triangle = { p1, p2, p3 };
                 g.FillPolygon(brush, triangle);
-
-                timer1.Stop();
             }
             else
             {
@@ -100,8 +119,6 @@ namespace SerpinskyTriangle
                 DrawTriangle(bmp, color, left_mid, p2, bottom_mid, level - 1);
                 DrawTriangle(bmp, color, right_mid, bottom_mid, p3, level - 1);
             }
-
-            timer1.Start();
         }
 
         private void NmUDDepth_ValueChanged(object sender, EventArgs e)
@@ -116,22 +133,24 @@ namespace SerpinskyTriangle
             saveFileDialog.Filter = "Bitmap Image (*.bmp)|*.bmp|JPEG Image (*.jpg)|*.jpg|PNG Image (*.png)|*.png|All files|*.*";
             saveFileDialog.Title = "Save as";
             saveFileDialog.FileName = "triangle_image";
-            saveFileDialog.ShowDialog();
 
-            switch (saveFileDialog.FilterIndex)
+            if (saveFileDialog.ShowDialog() == DialogResult.OK)
             {
-                case 1:
-                case 4:
-                    _bmp.Save(saveFileDialog.FileName, ImageFormat.Bmp);
-                    break;
-                case 2:
-                    _bmp.Save(saveFileDialog.FileName, ImageFormat.Jpeg);
-                    break;
-                case 3:
-                    _bmp.Save(saveFileDialog.FileName, ImageFormat.Png);
-                    break;
-                default:
-                    break;
+                switch (saveFileDialog.FilterIndex)
+                {
+                    case 1:
+                    case 4:
+                        _bmp.Save(saveFileDialog.FileName, ImageFormat.Bmp);
+                        break;
+                    case 2:
+                        _bmp.Save(saveFileDialog.FileName, ImageFormat.Jpeg);
+                        break;
+                    case 3:
+                        _bmp.Save(saveFileDialog.FileName, ImageFormat.Png);
+                        break;
+                    default:
+                        break;
+                }
             }
         }
 
@@ -156,6 +175,7 @@ namespace SerpinskyTriangle
 
             BtSave.Enabled = false;
             BtSaveAs.Enabled = false;
+            BtClear.Enabled = false;
         }
     }
 }
