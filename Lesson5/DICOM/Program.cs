@@ -1,4 +1,4 @@
-namespace SerpinskyTriangle
+namespace DICOM
 {
     internal static class Program
     {
@@ -11,7 +11,7 @@ namespace SerpinskyTriangle
             // To customize application configuration such as set high DPI settings or default font,
             // see https://aka.ms/applicationconfiguration.
             ApplicationConfiguration.Initialize();
-            Application.Run(new SerpinskyTriangle());
+            Application.Run(new FormMain());
         }
     }
 }
