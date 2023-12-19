@@ -5,14 +5,14 @@ namespace DICOM
 {
     public partial class FormMain : Form
     {
-        public DicomXmlFile dicomXmlFile;
+        public DicomXmlFile DicomXmlFile { get; set; }
 
         public FormMain()
         {
             InitializeComponent();
 
             string filePath = PathExtension.GetParentDirectory(Environment.CurrentDirectory) + "\\dicom-elements.xml";
-            dicomXmlFile = new DicomXmlFile(filePath);
+            DicomXmlFile = new DicomXmlFile(filePath);
         }
 
 #if !DEBUG
@@ -33,26 +33,25 @@ namespace DICOM
 
         private void OpenToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (openFileDialog1.ShowDialog() == DialogResult.OK)
-            {
-                try
-                {
-                    DicomInfo dcm = new(openFileDialog1.FileName, dicomXmlFile);
+            if (openFileDialog_dicomXml.ShowDialog() != DialogResult.OK) return;
 
-                    FormViewer newForm = new FormViewer(dcm);
-                    newForm.MdiParent = this;
-                    newForm.Show();
-                }
-                catch (FormatException ex)
-                {
-                    MessageBox.Show(ex.Message);
-                }
+            try
+            {
+                DicomInfo dicom = new(openFileDialog_dicomXml.FileName, DicomXmlFile);
+
+                FormViewer dicomFileForm = new(dicom);
+                dicomFileForm.MdiParent = this;
+                dicomFileForm.Show();
+            }
+            catch (FormatException ex)
+            {
+                MessageBox.Show(ex.Message);
             }
         }
 
         private void XmlViewToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            FormXmlView xmlView = new(dicomXmlFile);
+            FormXmlView xmlView = new(DicomXmlFile);
             xmlView.MdiParent = this;
             xmlView.Show();
         }

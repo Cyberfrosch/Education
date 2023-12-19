@@ -12,7 +12,7 @@ namespace DICOM
 {
     public partial class FormViewer : Form
     {
-        private DicomInfo _dicomInfo;
+        private readonly DicomInfo _dicomInfo;
 
         public FormViewer(DicomInfo dicomInfo)
         {

@@ -35,7 +35,7 @@
             closeToolStripMenuItem = new ToolStripMenuItem();
             editToolStripMenuItem = new ToolStripMenuItem();
             xmlViewToolStripMenuItem = new ToolStripMenuItem();
-            openFileDialog1 = new OpenFileDialog();
+            openFileDialog_dicomXml = new OpenFileDialog();
             menuStrip1.SuspendLayout();
             SuspendLayout();
             // 
@@ -83,9 +83,9 @@
             xmlViewToolStripMenuItem.Text = "XML view";
             xmlViewToolStripMenuItem.Click += XmlViewToolStripMenuItem_Click;
             // 
-            // openFileDialog1
+            // openFileDialog_dicomXml
             // 
-            openFileDialog1.Filter = "DICOM files(*.dcm)|*.dcm|All files(*.*)|*.*";
+            openFileDialog_dicomXml.Filter = "DICOM files(*.dcm)|*.dcm|All files(*.*)|*.*";
             // 
             // FormMain
             // 
@@ -111,7 +111,7 @@
         private ToolStripMenuItem fileToolStripMenuItem;
         private ToolStripMenuItem editToolStripMenuItem;
         private ToolStripMenuItem xmlViewToolStripMenuItem;
-        private OpenFileDialog openFileDialog1;
+        private OpenFileDialog openFileDialog_dicomXml;
         private ToolStripMenuItem openToolStripMenuItem;
         private ToolStripMenuItem closeToolStripMenuItem;
     }

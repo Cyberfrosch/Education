@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -41,7 +42,7 @@ namespace DICOM
                 string elementId = _reader.ReadInt16().ToString("X4");
                 string vr = Encoding.ASCII.GetString(_reader.ReadBytes(2));
 
-                uint length = ReadLength(vr);
+                UInt32 length = ReadLength(vr);
                 byte[] data = _reader.ReadBytes((int)length);
 
                 Add(new DicomDataset(dicomElements.GetData(groupId, elementId), length, data, this));
@@ -79,38 +80,21 @@ namespace DICOM
         }
     }
 
-    public class DicomDataset
+    public class DicomDataset(DicomElement dicomElement, uint length, byte[] data, DicomInfo parent)
     {
-        private readonly DicomInfo _parent;
+        public DicomElement DicomElement = dicomElement;
+        public UInt32 Length { get; set; } = length;
+        public byte[] Data = data;
 
-        public DicomElement DicomElement;
-        public UInt32 Length { get; set; }
-        public byte[] Data;
-
-        public string DataStr
-        {
-            get
-            {
-                return GetDataStr(_parent.encoding);
-            }
-        }
-
+        public string DataStr => GetDataStr(parent.encoding);
         public string DicomElementGroupId => DicomElement.GroupId;
         public string DicomElementElementId => DicomElement.ElementId;
         public string DicomElementVr => DicomElement.Vr;
         public string DicomElementDescription => DicomElement.Description;
 
-        public DicomDataset(DicomElement dicomElement, uint length, byte[] data, DicomInfo parent)
-        {
-            DicomElement = dicomElement;
-            Length = length;
-            Data = data;
-            _parent = parent;
-        }
-
         private string GetDataStr(Encoding encoding)
         {
-            string result = string.Empty;
+            string result;
 
             switch (DicomElement.Vr)
             {
@@ -127,17 +111,17 @@ namespace DICOM
                     result = BitConverter.ToUInt32(Data, 0).ToString();
                     break;
                 case "FL":
-                    result = BitConverter.ToSingle(Data, 0).ToString();
+                    result = BitConverter.ToSingle(Data, 0).ToString(CultureInfo.InvariantCulture);
                     break;
                 case "FD":
-                    result = BitConverter.ToDouble(Data, 0).ToString();
+                    result = BitConverter.ToDouble(Data, 0).ToString(CultureInfo.InvariantCulture);
                     break;
                 default:
                     result = encoding.GetString(Data);
                     break;
             }
 
-            return result.Trim(new char[] {(char)0});
+            return result.Trim(Convert.ToChar(0));
         }
     }
 }

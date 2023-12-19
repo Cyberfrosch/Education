@@ -7,20 +7,12 @@ using System.Xml;
 
 namespace DICOM
 {
-    public class DicomElement
+    public class DicomElement(string groupId, string elementId, string vr, string description)
     {
-        public string GroupId { get; set; }
-        public string ElementId { get; set; }
-        public string Vr { get; set; }
-        public string Description { get; set; }
-
-        public DicomElement(string groupId, string elementId, string vr, string description)
-        {
-            GroupId = groupId;
-            ElementId = elementId;
-            Vr = vr;
-            Description = description;
-        }
+        public string GroupId { get; set; } = groupId;
+        public string ElementId { get; set; } = elementId;
+        public string Vr { get; set; } = vr;
+        public string Description { get; set; } = description;
     }
 
     public class DicomXmlFile : List<DicomElement>
