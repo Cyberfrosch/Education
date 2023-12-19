@@ -81,7 +81,7 @@
               <xsd:attribute name="name" type="xsd:string" />
             </xsd:complexType>
           </xsd:element>
-          <xsd:element name="data">
+          <xsd:element name="Data">
             <xsd:complexType>
               <xsd:sequence>
                 <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
@@ -124,7 +124,7 @@
     <value>175, 17</value>
   </metadata>
   <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
-  <data name="$this.Icon" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+  <Data name="$this.Icon" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         AAABAAYAAAAAAAEAIAC+PAIAZgAAAAAAAAABACAAwMYAACQ9AgCAgAAAAQAgACgIAQDkAwMAMDAAAAEA
         IACoJQAADAwEACAgAAABACAAqBAAALQxBAAYGAAAAQAgAIgJAABcQgQAiVBORw0KGgoAAAANSUhEUgAA
@@ -4820,5 +4820,5 @@
         AAAAAAAAAAAAAAAAAAAAAP/3/wD/AH8A/AAfAPgADwDwAAcA4AADAOAAAwDAAAEAwAABAMAAAQCAAAEA
         gAABAIAAAQDAAAEAwAABAMAAAQDgAAMA4AADAPAABwD4AA8A/AAfAP8AfwD///8A////AA==
 </value>
-  </data>
+  </Data>
 </root>

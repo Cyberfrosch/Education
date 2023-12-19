@@ -12,9 +12,14 @@ namespace DICOM
 {
     public partial class FormViewer : Form
     {
-        public FormViewer()
+        private DicomInfo _dicomInfo;
+
+        public FormViewer(DicomInfo dicomInfo)
         {
             InitializeComponent();
+
+            _dicomInfo = dicomInfo;
+            bsDicomFile.DataSource = _dicomInfo;
         }
     }
 }

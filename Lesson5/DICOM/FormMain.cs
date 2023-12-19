@@ -39,7 +39,7 @@ namespace DICOM
                 {
                     DicomInfo dcm = new(openFileDialog1.FileName, dicomXmlFile);
 
-                    FormViewer newForm = new();
+                    FormViewer newForm = new FormViewer(dcm);
                     newForm.MdiParent = this;
                     newForm.Show();
                 }

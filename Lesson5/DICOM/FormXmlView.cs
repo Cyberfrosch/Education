@@ -16,8 +16,7 @@ namespace DICOM
         {
             InitializeComponent();
 
-            dataGridView1.DataSource = dicomData;
-            dataGridView1.Refresh();
+            dicomDatasetsBindingSource.DataSource = dicomData; // Form_Loading
         }
     }
 }
