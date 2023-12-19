@@ -14,7 +14,7 @@ namespace Extensions
         {
             for (int i = 0; i < levels; ++i)
             {
-                var parent = Path.GetDirectoryName(path);
+                string parent = Path.GetDirectoryName(path);
 
                 if (parent != null)
                 {

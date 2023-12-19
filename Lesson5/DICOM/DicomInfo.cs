@@ -30,6 +30,10 @@ namespace DICOM
                 throw new FormatException("Isn't a DICOM file");
             }
 
+            string groupId = string.Empty;
+            string elementId = string.Empty;
+            string vr = string.Empty;
+
             _reader.ReadBytes(8);
             UInt32 length0002 = _reader.ReadUInt32();
             Add(new DicomDataset(dicomElements.GetData("0002", "0000"), 4, BitConverter.GetBytes(length0002), this));
@@ -38,19 +42,38 @@ namespace DICOM
 
             while (_reader.BaseStream.Position < group0002End)
             {
-                string groupId = _reader.ReadInt16().ToString("X4");
-                string elementId = _reader.ReadInt16().ToString("X4");
-                string vr = Encoding.ASCII.GetString(_reader.ReadBytes(2));
+                groupId = _reader.ReadInt16().ToString("X4");
+                elementId = _reader.ReadInt16().ToString("X4");
+                vr = Encoding.ASCII.GetString(_reader.ReadBytes(2));
 
                 UInt32 length = ReadLength(vr);
                 byte[] data = _reader.ReadBytes((int)length);
 
-                Add(new DicomDataset(dicomElements.GetData(groupId, elementId), length, data, this));
+                DicomDataset tmp = new(dicomElements.GetData(groupId, elementId), length, data, this);
+                if (elementId == "0010")
+                {
+                    isExplicitVR = (tmp.DataStr == "1.2.840.10008.1.2.1"); // 1.2.840.10008.1.2.1 - UID of Explicit VR Little Endian (0002, 0010)
+                }
+
+                Add(tmp);
             }
 
-            // Explicit or Implicit
+            do
+            {
+                groupId = _reader.ReadInt16().ToString("X4");
+                elementId = _reader.ReadInt16().ToString("X4");
 
-            // цикл while до 8 Group 2111 Element
+                if (isExplicitVR)
+                {
+                    vr = Encoding.ASCII.GetString(_reader.ReadBytes(2));
+                }
+
+                UInt32 length = ReadLength(vr);
+
+                byte[] data = _reader.ReadBytes((int)length);
+
+                Add(new DicomDataset(dicomElements.GetData(groupId, elementId), length, data, this));
+            } while (groupId != "0008" || elementId != "2111");
         }
 
         public bool IsDicom()
